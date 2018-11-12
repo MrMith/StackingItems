@@ -62,7 +62,7 @@ namespace itemStacks
 						if (value.Flashs >= 1)
 						{
 							StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs--;
-							if (value.Flashs % plugin.GetConfigInt("stack_flashbanglimit") == 0 && value.Flashs >=2 || value.Flashs == 0)
+							if (value.Flashs % plugin.GetConfigInt("stack_flashlimit") == 0 && value.Flashs >=2 || value.Flashs == 0)
 							{
 								ev.Allow = true;
 							}
@@ -121,10 +121,10 @@ namespace itemStacks
 					}
 					break;
 				case ItemType.FLASHBANG:
-					if (StackMain.fixthrowGrenade && plugin.GetConfigInt("stack_flashbanglimit") >= 2)
+					if (StackMain.fixthrowGrenade && plugin.GetConfigInt("stack_flashlimit") >= 2)
 					{
 						StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs++;
-						if ((StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs + (plugin.GetConfigInt("stack_flashbanglimit") - 1)) % plugin.GetConfigInt("stack_flashbanglimit") != 0)
+						if ((StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs + (plugin.GetConfigInt("stack_flashlimit") - 1)) % plugin.GetConfigInt("stack_flashlimit") != 0)
 						{
 							ev.Allow = false;
 						}
@@ -160,7 +160,7 @@ namespace itemStacks
 				if (value.Flashs >= 1 && ev.GrenadeType == ItemType.FLASHBANG)
 				{
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs--;
-					if (value.Flashs % plugin.GetConfigInt("stack_flashbanglimit") != 0 && value.Flashs >= 2)
+					if (value.Flashs % plugin.GetConfigInt("stack_flashlimit") != 0 && value.Flashs >= 2)
 					{
 						StackMain.fixthrowGrenade = false;
 						ev.Player.GiveItem(ItemType.FLASHBANG);
@@ -214,7 +214,7 @@ namespace itemStacks
 				}
 				if (value.Flashs >= 1)
 				{
-					for (int i = 0; i < (value.Flashs - Math.Floor((float)value.Flashs / (float)plugin.GetConfigInt("stack_flashbanglimit"))); i++)
+					for (int i = 0; i < (value.Flashs - Math.Floor((float)value.Flashs / (float)plugin.GetConfigInt("stack_flashlimit"))); i++)
 					{
 						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FLASHBANG, ev.Player.GetPosition(), new Vector(0, 0, 0));
 					}

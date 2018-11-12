@@ -10,9 +10,9 @@ namespace itemStacks
 	[PluginDetails(
 		author = "Mith",
 		name = "Item Stacks",
-		description = "Grenades and medkits stack to save inventory space.",
+		description = "Items stack to save inventory space.",
 		id = "mith.itemstacks",
-		version = "1.0",
+		version = "0.01",
 		SmodMajor = 3,
 		SmodMinor = 1,
 		SmodRevision = 21
@@ -55,7 +55,7 @@ namespace itemStacks
 			this.AddCommand("stack_version", new StackVersion(this));
 			this.AddEventHandlers(new StackEventHandler(this));
 
-			this.AddConfig(new Smod2.Config.ConfigSetting("stack_flashbanglimit", 3, Smod2.Config.SettingType.NUMERIC, true, "How much flashbangs stack to"));
+			this.AddConfig(new Smod2.Config.ConfigSetting("stack_flashlimit", 3, Smod2.Config.SettingType.NUMERIC, true, "How much flashbangs stack to"));
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_fraglimit", 3, Smod2.Config.SettingType.NUMERIC, true, "How much frag grenades stack to"));
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_coinlimit", 4, Smod2.Config.SettingType.NUMERIC, true, "How much coins stack to"));
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_medkitlimit", 5, Smod2.Config.SettingType.NUMERIC, true, "How much medkits stack to"));
