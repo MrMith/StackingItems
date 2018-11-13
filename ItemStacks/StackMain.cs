@@ -2,9 +2,6 @@
 using Smod2.Attributes;
 using System.Collections.Generic;
 
-/*
-	REWRITE logic like in 212 to add methods for dropping and handling stacks. 
- */
 namespace itemStacks
 {
 	[PluginDetails(

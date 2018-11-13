@@ -150,7 +150,7 @@ namespace itemStacks
 				if (value.Frags >= 1 && ev.GrenadeType == ItemType.FRAG_GRENADE)
 				{
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].Frags--;
-					if (value.Frags % plugin.GetConfigInt("stack_fraglimit") != 0 && value.Frags >= 2)
+					if (value.Frags % plugin.GetConfigInt("stack_fraglimit") != 0)
 					{
 						StackMain.fixthrowGrenade = false;
 						ev.Player.GiveItem(ItemType.FRAG_GRENADE);
@@ -160,7 +160,7 @@ namespace itemStacks
 				if (value.Flashs >= 1 && ev.GrenadeType == ItemType.FLASHBANG)
 				{
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs--;
-					if (value.Flashs % plugin.GetConfigInt("stack_flashlimit") != 0 && value.Flashs >= 2)
+					if (value.Flashs % plugin.GetConfigInt("stack_flashlimit") != 0)
 					{
 						StackMain.fixthrowGrenade = false;
 						ev.Player.GiveItem(ItemType.FLASHBANG);
@@ -177,7 +177,7 @@ namespace itemStacks
 				if (value.Medkits >= 1)
 				{
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].Medkits--;
-					if (value.Medkits % plugin.GetConfigInt("stack_medkitlimit") != 0 && value.Medkits >= 2)
+					if (value.Medkits % plugin.GetConfigInt("stack_medkitlimit") != 0)
 					{
 						StackMain.fixUseMedKit = false;
 						ev.Player.GiveItem(ItemType.MEDKIT);
