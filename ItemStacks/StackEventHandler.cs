@@ -10,7 +10,7 @@ using System;
 
 namespace itemStacks
 {
-	class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItem, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerRoundStart,IEventHandlerSetRole
+	class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItem, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerRoundStart,IEventHandlerSetRole, IEventHandlerUpdate
 	{
 		private readonly Plugin plugin;
 
@@ -193,28 +193,28 @@ namespace itemStacks
 			{
 				if (value.Medkits >= 1)
 				{
-					for (int i = 0;  i < (value.Medkits - Math.Floor((float)value.Medkits/(float)plugin.GetConfigInt("stack_medkitlimit"))); i++)
+					for (int i = 1;  i < (value.Medkits - Math.Floor((float)value.Medkits/(float)plugin.GetConfigInt("stack_medkitlimit"))); i++)
 					{
 						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.MEDKIT, ev.Player.GetPosition(), new Vector(0, 0, 0));
 					}
 				}
 				if (value.Frags >= 1)
 				{
-					for (int i = 0; i < (value.Frags - Math.Floor((float)value.Frags / (float)plugin.GetConfigInt("stack_fraglimit"))); i++)
+					for (int i = 1; i < (value.Frags - Math.Floor((float)value.Frags / (float)plugin.GetConfigInt("stack_fraglimit"))); i++)
 					{
 						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FRAG_GRENADE, ev.Player.GetPosition(), new Vector(0, 0, 0));
 					}
 				}
 				if (value.Coins >= 1)
 				{
-					for (int i = 0; i < (value.Coins - Math.Floor((float)value.Coins / (float)plugin.GetConfigInt("stack_coinlimit"))); i++)
+					for (int i = 1; i < (value.Coins - Math.Floor((float)value.Coins / (float)plugin.GetConfigInt("stack_coinlimit"))); i++)
 					{
 						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.COIN, ev.Player.GetPosition(), new Vector(0, 0, 0));
 					}
 				}
 				if (value.Flashs >= 1)
 				{
-					for (int i = 0; i < (value.Flashs - Math.Floor((float)value.Flashs / (float)plugin.GetConfigInt("stack_flashlimit"))); i++)
+					for (int i = 1; i < (value.Flashs - Math.Floor((float)value.Flashs / (float)plugin.GetConfigInt("stack_flashlimit"))); i++)
 					{
 						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FLASHBANG, ev.Player.GetPosition(), new Vector(0, 0, 0));
 					}
@@ -239,6 +239,55 @@ namespace itemStacks
 			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].Clear();
+			}
+		}
+
+		public void OnUpdate(UpdateEvent ev) // OnHandCuffed is broke >:(
+		{
+			DateTime timeOnEvent = DateTime.Now;
+			if (DateTime.Now >= timeOnEvent)
+			{
+				timeOnEvent = DateTime.Now.AddSeconds(1.0);
+				{
+					foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())
+					{
+						if (playa.IsHandcuffed())
+						{
+							if (StackMain.checkSteamIDItemNum.TryGetValue(playa.SteamId, out value))
+							{
+								if (value.Medkits >= 1)
+								{
+									for (int i = 1; i < (value.Medkits - Math.Floor((float)value.Medkits / (float)plugin.GetConfigInt("stack_medkitlimit"))); i++)
+									{
+										Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.MEDKIT, playa.GetPosition(), new Vector(0, 0, 0));
+									}
+								}
+								if (value.Frags >= 1)
+								{
+									for (int i = 1; i < (value.Frags - Math.Floor((float)value.Frags / (float)plugin.GetConfigInt("stack_fraglimit"))); i++)
+									{
+										Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FRAG_GRENADE, playa.GetPosition(), new Vector(0, 0, 0));
+									}
+								}
+								if (value.Coins >= 1)
+								{
+									for (int i = 1; i < (value.Coins - Math.Floor((float)value.Coins / (float)plugin.GetConfigInt("stack_coinlimit"))); i++)
+									{
+										Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.COIN, playa.GetPosition(), new Vector(0, 0, 0));
+									}
+								}
+								if (value.Flashs >= 1)
+								{
+									for (int i = 1; i < (value.Flashs - Math.Floor((float)value.Flashs / (float)plugin.GetConfigInt("stack_flashlimit"))); i++)
+									{
+										Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FLASHBANG, playa.GetPosition(), new Vector(0, 0, 0));
+									}
+								}
+								StackMain.checkSteamIDItemNum[playa.SteamId].Clear();
+							}
+						}
+					}
+				}
 			}
 		}
 	}

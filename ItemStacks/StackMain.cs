@@ -9,7 +9,7 @@ namespace itemStacks
 		name = "Item Stacks",
 		description = "Items stack to save inventory space.",
 		id = "mith.itemstacks",
-		version = "0.01",
+		version = "0.03",
 		SmodMajor = 3,
 		SmodMinor = 1,
 		SmodRevision = 21
