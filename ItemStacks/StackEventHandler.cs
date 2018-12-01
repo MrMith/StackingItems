@@ -13,6 +13,7 @@ namespace itemStacks
 	class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItem, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerRoundStart,IEventHandlerSetRole, IEventHandlerUpdate
 	{
 		private readonly Plugin plugin;
+		static string configStack;
 
 		StackMain.StackCheckSteamIDsforItemInts value;
 
@@ -25,69 +26,20 @@ namespace itemStacks
 		{
 			if (StackMain.checkSteamIDItemNum.TryGetValue(ev.Player.SteamId, out value))
 			{
-				switch (ev.Item.ItemType)
+				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType) >= 1)
 				{
-					case ItemType.MEDKIT:
-						if (value.Medkits >= 1)
-						{
-							StackMain.checkSteamIDItemNum[ev.Player.SteamId].Medkits--;
-							if (value.Medkits % plugin.GetConfigInt("stack_medkitlimit") == 0 && value.Medkits >= 2 || value.Medkits == 0)
-							{
-								ev.Allow = true;
-							}
-							else
-							{
-								Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.MEDKIT, ev.Player.GetPosition(), new Vector(0, 0, 0));
-								ev.Allow = false;
-							}
-						}
-						break;
-					case ItemType.COIN:
-						if (value.Coins >= 1)
-						{
-							StackMain.checkSteamIDItemNum[ev.Player.SteamId].Coins--;
-							if (value.Coins % plugin.GetConfigInt("stack_coinlimit") == 0 && value.Coins >= 2 || value.Coins == 0)
-							{
-								ev.Allow = true;
-							}
-							else
-							{
-								Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.COIN, ev.Player.GetPosition(), new Vector(0, 0, 0));
-								ev.Allow = false;
-							}
-
-						}
-						break;
-					case ItemType.FLASHBANG:
-						if (value.Flashs >= 1)
-						{
-							StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs--;
-							if (value.Flashs % plugin.GetConfigInt("stack_flashlimit") == 0 && value.Flashs >=2 || value.Flashs == 0)
-							{
-								ev.Allow = true;
-							}
-							else
-							{
-								Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FLASHBANG, ev.Player.GetPosition(), new Vector(0, 0, 0));
-								ev.Allow = false;
-							}
-						}
-						break;
-					case ItemType.FRAG_GRENADE:
-						if (value.Frags >= 1)
-						{
-							StackMain.checkSteamIDItemNum[ev.Player.SteamId].Frags--;
-							if (value.Frags % plugin.GetConfigInt("stack_fraglimit") == 0 && value.Frags >= 2 || value.Frags == 0)
-							{
-								ev.Allow = true;
-							}
-							else
-							{
-								Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FRAG_GRENADE, ev.Player.GetPosition(), new Vector(0, 0, 0));
-								ev.Allow = false;
-							}
-						}
-						break;
+					configStack = ("stack_" + ev.Item.ToString().ToLower() + "_limit").Replace(" (inventory)", "");
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, -1);
+					int ItemAmount = StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
+					if (ItemAmount % plugin.GetConfigInt(configStack) == 0 && ItemAmount >= 2 || ItemAmount == 0)
+					{
+						ev.Allow = true;
+					}
+					else
+					{
+						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ev.Item.ItemType, ev.Player.GetPosition(), new Vector(0, 0, 0));
+						ev.Allow = false;
+					}
 				}
 			}
 		}
@@ -98,48 +50,14 @@ namespace itemStacks
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
 			}
-			switch (ev.Item.ItemType)
+			configStack = ("stack_" + ev.Item.ToString().ToLower() + "_limit").Replace(" (inventory)", "");
+			if (StackMain.fixUseMedKit && StackMain.fixthrowGrenade && plugin.GetConfigInt(configStack) >= 2 && !ev.Item.ToString().ToLower().Contains("dropped"))
 			{
-				case ItemType.MEDKIT:
-					if (StackMain.fixUseMedKit && plugin.GetConfigInt("stack_medkitlimit") >= 2)
-					{
-						StackMain.checkSteamIDItemNum[ev.Player.SteamId].Medkits++;
-						if ((StackMain.checkSteamIDItemNum[ev.Player.SteamId].Medkits + (plugin.GetConfigInt("stack_medkitlimit") - 1)) % plugin.GetConfigInt("stack_medkitlimit") != 0)
-						{
-							ev.Allow = false;
-						}
-					}
-					break;
-				case ItemType.COIN:
-					if (plugin.GetConfigInt("stack_coinlimit") >= 2)
-					{
-						StackMain.checkSteamIDItemNum[ev.Player.SteamId].Coins++;
-						if ((StackMain.checkSteamIDItemNum[ev.Player.SteamId].Coins + (plugin.GetConfigInt("stack_coinlimit") - 1)) % plugin.GetConfigInt("stack_coinlimit") != 0)
-						{
-							ev.Allow = false;
-						}
-					}
-					break;
-				case ItemType.FLASHBANG:
-					if (StackMain.fixthrowGrenade && plugin.GetConfigInt("stack_flashlimit") >= 2)
-					{
-						StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs++;
-						if ((StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs + (plugin.GetConfigInt("stack_flashlimit") - 1)) % plugin.GetConfigInt("stack_flashlimit") != 0)
-						{
-							ev.Allow = false;
-						}
-					}
-					break;
-				case ItemType.FRAG_GRENADE:
-					if (StackMain.fixthrowGrenade && plugin.GetConfigInt("stack_fraglimit") >= 2)
-					{
-						StackMain.checkSteamIDItemNum[ev.Player.SteamId].Frags++;
-						if ((StackMain.checkSteamIDItemNum[ev.Player.SteamId].Frags + (plugin.GetConfigInt("stack_fraglimit") - 1)) % plugin.GetConfigInt("stack_fraglimit") != 0)
-						{
-							ev.Allow = false;
-						}
-					}
-					break;
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
+				if ((StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType) + (plugin.GetConfigInt(configStack) - 1)) % plugin.GetConfigInt(configStack) != 0)
+				{
+					ev.Allow = false;
+				}
 			}
 		}
 
@@ -147,24 +65,14 @@ namespace itemStacks
 		{
 			if (StackMain.checkSteamIDItemNum.TryGetValue(ev.Player.SteamId, out value))
 			{
-				if (value.Frags >= 1 && ev.GrenadeType == ItemType.FRAG_GRENADE)
+				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) >= 1)
 				{
-					StackMain.checkSteamIDItemNum[ev.Player.SteamId].Frags--;
-					if (value.Frags % plugin.GetConfigInt("stack_fraglimit") != 0)
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.GrenadeType,-1);
+					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) % plugin.GetConfigInt("stack_" + ev.GrenadeType.ToString().ToLower() + "_limit") != 0)
 					{
 						StackMain.fixthrowGrenade = false;
-						ev.Player.GiveItem(ItemType.FRAG_GRENADE);
+						ev.Player.GiveItem(ev.GrenadeType);
 						StackMain.fixthrowGrenade = true; //Looks ugly but is needed so it doesn't add one to my stacking system.
-					}
-				}
-				if (value.Flashs >= 1 && ev.GrenadeType == ItemType.FLASHBANG)
-				{
-					StackMain.checkSteamIDItemNum[ev.Player.SteamId].Flashs--;
-					if (value.Flashs % plugin.GetConfigInt("stack_flashlimit") != 0)
-					{
-						StackMain.fixthrowGrenade = false;
-						ev.Player.GiveItem(ItemType.FLASHBANG);
-						StackMain.fixthrowGrenade = true; //Looks ugly but is needed so it doesn't add one to my stacking system. 
 					}
 				}
 			}
@@ -174,10 +82,10 @@ namespace itemStacks
 		{
 			if (StackMain.checkSteamIDItemNum.TryGetValue(ev.Player.SteamId, out value))
 			{
-				if (value.Medkits >= 1)
+				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ItemType.MEDKIT) >= 1)
 				{
-					StackMain.checkSteamIDItemNum[ev.Player.SteamId].Medkits--;
-					if (value.Medkits % plugin.GetConfigInt("stack_medkitlimit") != 0)
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ItemType.MEDKIT, -1);
+					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ItemType.MEDKIT) % plugin.GetConfigInt("stack_" + ItemType.MEDKIT.ToString().ToLower() + "_limit") != 0)
 					{
 						StackMain.fixUseMedKit = false;
 						ev.Player.GiveItem(ItemType.MEDKIT);
@@ -191,32 +99,14 @@ namespace itemStacks
 		{
 			if (StackMain.checkSteamIDItemNum.TryGetValue(ev.Player.SteamId, out value))
 			{
-				if (value.Medkits >= 1)
+				foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 				{
-					for (int i = 1;  i < (value.Medkits - Math.Floor((float)value.Medkits/(float)plugin.GetConfigInt("stack_medkitlimit"))); i++)
+					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) != -1)
 					{
-						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.MEDKIT, ev.Player.GetPosition(), new Vector(0, 0, 0));
-					}
-				}
-				if (value.Frags >= 1)
-				{
-					for (int i = 1; i < (value.Frags - Math.Floor((float)value.Frags / (float)plugin.GetConfigInt("stack_fraglimit"))); i++)
-					{
-						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FRAG_GRENADE, ev.Player.GetPosition(), new Vector(0, 0, 0));
-					}
-				}
-				if (value.Coins >= 1)
-				{
-					for (int i = 1; i < (value.Coins - Math.Floor((float)value.Coins / (float)plugin.GetConfigInt("stack_coinlimit"))); i++)
-					{
-						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.COIN, ev.Player.GetPosition(), new Vector(0, 0, 0));
-					}
-				}
-				if (value.Flashs >= 1)
-				{
-					for (int i = 1; i < (value.Flashs - Math.Floor((float)value.Flashs / (float)plugin.GetConfigInt("stack_flashlimit"))); i++)
-					{
-						Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FLASHBANG, ev.Player.GetPosition(), new Vector(0, 0, 0));
+						for (int i = 0; i < (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) - Math.Floor((float)StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) / (float)plugin.GetConfigInt("stack_" + item.ToString().ToLower() + "_limit"))); i++)
+						{
+							Smod2.PluginManager.Manager.Server.Map.SpawnItem(item, ev.Player.GetPosition(), new Vector(0, 0, 0));
+						}
 					}
 				}
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].Clear();
@@ -255,32 +145,14 @@ namespace itemStacks
 						{
 							if (StackMain.checkSteamIDItemNum.TryGetValue(playa.SteamId, out value))
 							{
-								if (value.Medkits >= 1)
+								foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 								{
-									for (int i = 1; i < (value.Medkits - Math.Floor((float)value.Medkits / (float)plugin.GetConfigInt("stack_medkitlimit"))); i++)
+									if (StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) != -1)
 									{
-										Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.MEDKIT, playa.GetPosition(), new Vector(0, 0, 0));
-									}
-								}
-								if (value.Frags >= 1)
-								{
-									for (int i = 1; i < (value.Frags - Math.Floor((float)value.Frags / (float)plugin.GetConfigInt("stack_fraglimit"))); i++)
-									{
-										Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FRAG_GRENADE, playa.GetPosition(), new Vector(0, 0, 0));
-									}
-								}
-								if (value.Coins >= 1)
-								{
-									for (int i = 1; i < (value.Coins - Math.Floor((float)value.Coins / (float)plugin.GetConfigInt("stack_coinlimit"))); i++)
-									{
-										Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.COIN, playa.GetPosition(), new Vector(0, 0, 0));
-									}
-								}
-								if (value.Flashs >= 1)
-								{
-									for (int i = 1; i < (value.Flashs - Math.Floor((float)value.Flashs / (float)plugin.GetConfigInt("stack_flashlimit"))); i++)
-									{
-										Smod2.PluginManager.Manager.Server.Map.SpawnItem(ItemType.FLASHBANG, playa.GetPosition(), new Vector(0, 0, 0));
+										for (int i = 0; i < (StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) - Math.Floor((float)StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) / (float)plugin.GetConfigInt("stack_" + item.ToString().ToLower() + "_limit"))); i++)
+										{
+											Smod2.PluginManager.Manager.Server.Map.SpawnItem(item, playa.GetPosition(), new Vector(0, 0, 0));
+										}
 									}
 								}
 								StackMain.checkSteamIDItemNum[playa.SteamId].Clear();
