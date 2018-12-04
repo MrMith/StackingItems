@@ -10,7 +10,7 @@ namespace itemStacks
 		name = "Item Stacks",
 		description = "Items stack to save inventory space.",
 		id = "mith.itemstacks",
-		version = "0.10",
+		version = "0.11",
 		SmodMajor = 3,
 		SmodMinor = 1,
 		SmodRevision = 21
@@ -26,9 +26,12 @@ namespace itemStacks
 		{
 			public static Dictionary<int, int> checkItemForNumOfItems = new Dictionary<int, int>();
 
-			public void Clear()
+			public void ResetToZero()
 			{
-				checkItemForNumOfItems.Clear();
+				foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
+				{
+					checkItemForNumOfItems[(int)item] = 0;
+				}
 			}
 
 			public int GetItemAmount(int ItemType)
@@ -72,9 +75,11 @@ namespace itemStacks
 			this.AddCommand("stack_version", new StackVersion(this));
 			this.AddEventHandlers(new StackEventHandler(this));
 
+			this.AddConfig(new Smod2.Config.ConfigSetting("stack_override_keycard", -1, Smod2.Config.SettingType.NUMERIC, true, "Override all keycards to stack to this."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("stack_override_weapons", -1, Smod2.Config.SettingType.NUMERIC, true, "Override all weapons to stack to this."));
+
 			foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 			{
-				//this.Info(item.ToString().ToLower());
 				this.AddConfig(new Smod2.Config.ConfigSetting("stack_" + item.ToString().ToLower() + "_limit", 3, Smod2.Config.SettingType.NUMERIC, true, "How much " + item.ToString().ToLower() + " stacks to."));
 			}
 		}
