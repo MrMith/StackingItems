@@ -7,8 +7,10 @@ Put ItemStack.dll into sm_plugins folder.
 ## Config Options.
 | Config Option              | Value Type      | Default Value | Description |
 |   :---:                    |     :---:       |    :---:      |    :---:    |
-| stack_[< item name >](https://github.com/MrMith/ItemStacks/wiki/Item-config-examples)limit     | Integer         | 3             | How much <item name> stacks to |
-  
+| stack_[< item name >](https://github.com/MrMith/ItemStacks/wiki/Item-config-examples)limit     | Integer         | 3             | How much < item name > stacks to |
+| stack_override_keycard     | Integer         | -1    | Override all keycards to stack to this. Set this to -1 to disable |
+| stack_override_weapons     | Integer         | -1    | Override all keycards to stack to this. Set this to -1 to disable |
+
 Please note every item stacks to 3 by default.
 For details on how to use this see below.
 
