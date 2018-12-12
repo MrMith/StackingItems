@@ -39,7 +39,7 @@ namespace itemStacks
 
 		public string GetCommandDescription()
 		{
-			return "Enables or disables ItemStacks. Call stack_disable false to enable or stack_disable true to disable.";
+			return "Enables or disables ItemStacks.";
 		}
 
 		public string GetUsage()
