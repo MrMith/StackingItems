@@ -20,16 +20,13 @@ namespace itemStacks
 		internal static StackMain plugin;
 
 		public static Dictionary<string, StackCheckSteamIDsforItemInts > checkSteamIDItemNum = new Dictionary<string, StackCheckSteamIDsforItemInts>();
-
-		public static bool StackDisable;
+		public static Dictionary<int, int> checkItemForItemStack = new Dictionary<int, int>();
 
 		public static int Stack_KeycardOverride;
 		public static int Stack_WeaponOverride;
 
 		public static bool fixUseMedKit = true;
 		public static bool fixthrowGrenade = true;
-
-		public static Dictionary<int, int> checkItemForItemStack = new Dictionary<int, int>();
 
 		public static int GetStackSize(int ItemType)
 		{
@@ -49,7 +46,6 @@ namespace itemStacks
 			{
 				checkItemForItemStack[(int)item] = StackMain.plugin.GetConfigInt("stack_" + item.ToString().ToLower() + "_limit");
 			}
-			//plugin.GetConfigInt("stack_" + ItemType.MEDKIT.ToString().ToLower() + "_limit")
 		}
 
 		public class StackCheckSteamIDsforItemInts
@@ -71,7 +67,6 @@ namespace itemStacks
 				{
 					return -1;
 				}
-				
 			}
 
 			public void AddItemAmount(int ItemType,int Amount)

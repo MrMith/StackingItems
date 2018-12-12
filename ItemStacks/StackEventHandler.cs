@@ -15,8 +15,6 @@ namespace itemStacks
 	{
 		private readonly Plugin plugin;
 
-		StackMain.StackCheckSteamIDsforItemInts value;
-
 		public StackEventHandler(Plugin plugin)
 		{
 			this.plugin = plugin;
@@ -24,7 +22,7 @@ namespace itemStacks
 
 		public void OnPlayerDropItem(PlayerDropItemEvent ev)
 		{
-			if (StackMain.checkSteamIDItemNum.TryGetValue(ev.Player.SteamId, out value))
+			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType) >= 1)
 				{
@@ -43,7 +41,9 @@ namespace itemStacks
 					}
 
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, -1);
+
 					int ItemAmount = StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
+
 					if (ItemAmount % stackSize == 0)
 					{
 						ev.Allow = true;
@@ -59,12 +59,12 @@ namespace itemStacks
 
 		public void OnPlayerPickupItem(PlayerPickupItemEvent ev)
 		{
-			plugin.Info("test0");
 			if (!StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
 			}
 			int stackSize;
+
 			if(StackMain.Stack_KeycardOverride != -1 && ev.Item.ToString().ToLower().Contains("keycard"))
 			{
 				stackSize = StackMain.Stack_KeycardOverride;
@@ -76,12 +76,10 @@ namespace itemStacks
 			else
 			{
 				stackSize = StackMain.GetStackSize((int)ev.Item.ItemType);
-				plugin.Info("ev.itemtype stack size");
 			}
-			plugin.Info("test1");
+
 			if (StackMain.fixUseMedKit && StackMain.fixthrowGrenade && stackSize >= 2 && !ev.Item.ToString().ToLower().Contains("dropped"))
 			{
-				plugin.Info("test2");
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
 				int ItemAmount = StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
 				if (ItemAmount % stackSize == 1)
@@ -93,11 +91,12 @@ namespace itemStacks
 					ev.Allow = false;
 				}
 			}
+
 		}
 
 		public void OnThrowGrenade(PlayerThrowGrenadeEvent ev)
 		{
-			if (StackMain.checkSteamIDItemNum.TryGetValue(ev.Player.SteamId, out value))
+			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) >= 1)
 				{
@@ -114,7 +113,7 @@ namespace itemStacks
 
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
 		{
-			if (StackMain.checkSteamIDItemNum.TryGetValue(ev.Player.SteamId, out value))
+			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ItemType.MEDKIT) >= 1)
 				{
@@ -131,7 +130,7 @@ namespace itemStacks
 
 		public void OnPlayerDie(PlayerDeathEvent ev)
 		{
-			if (StackMain.checkSteamIDItemNum.TryGetValue(ev.Player.SteamId, out value))
+			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 				{
@@ -162,8 +161,7 @@ namespace itemStacks
 
 		public void OnRoundStart(RoundStartEvent ev)
 		{
-			StackMain.StackDisable = plugin.GetConfigBool("stack_disable");
-			if (StackMain.StackDisable)
+			if (plugin.GetConfigBool("stack_disable"))
 			{
 				Smod2.PluginManager.Manager.DisablePlugin(plugin.Details.id);
 				return;
@@ -182,7 +180,6 @@ namespace itemStacks
 
 		public void OnSetRole(PlayerSetRoleEvent ev)
 		{
-			if (!StackMain.StackDisable) return;
 			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].ResetToZero();
@@ -191,7 +188,6 @@ namespace itemStacks
 		
 		public void OnUpdate(UpdateEvent ev) // OnHandCuffed is broke >:(
 		{
-			if (!StackMain.StackDisable) return;
 			DateTime timeOnEvent = DateTime.Now;
 			if (DateTime.Now >= timeOnEvent)
 			{
@@ -201,7 +197,7 @@ namespace itemStacks
 					{
 						if (playa.IsHandcuffed())
 						{
-							if (StackMain.checkSteamIDItemNum.TryGetValue(playa.SteamId, out value))
+							if (StackMain.checkSteamIDItemNum.ContainsKey(playa.SteamId))
 							{
 								foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 								{
