@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace itemStacks
 {
-	class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItem, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerRoundStart,IEventHandlerSetRole, IEventHandlerUpdate
+	class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItemLate, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerRoundStart,IEventHandlerSetRole, IEventHandlerUpdate
 	{
 		private readonly Plugin plugin;
 
@@ -55,14 +55,30 @@ namespace itemStacks
 					}
 				}
 			}
+			else
+			{
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
+				foreach (Smod2.API.Item item in ev.Player.GetInventory())
+				{
+					if(ev.Item != item)
+					{
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
+					}
+				}
+			}
 		}
 
-		public void OnPlayerPickupItem(PlayerPickupItemEvent ev)
+		public void OnPlayerPickupItemLate(PlayerPickupItemLateEvent ev)
 		{
 			if (!StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
+				foreach(Smod2.API.Item item in ev.Player.GetInventory())
+				{
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
+				}
 			}
+
 			int stackSize;
 
 			if(StackMain.Stack_KeycardOverride != -1 && ev.Item.ToString().ToLower().Contains("keycard"))
@@ -77,21 +93,17 @@ namespace itemStacks
 			{
 				stackSize = StackMain.GetStackSize((int)ev.Item.ItemType);
 			}
-
+			plugin.Info(ev.Item.ItemType +"");
+			plugin.Info(stackSize + "");
 			if (StackMain.fixUseMedKit && StackMain.fixthrowGrenade && stackSize >= 2 && !ev.Item.ToString().ToLower().Contains("dropped"))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
 				int ItemAmount = StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
-				if (ItemAmount % stackSize == 1)
+				if (ItemAmount % stackSize != 1)
 				{
-					ev.Allow = true;
-				}
-				else
-				{
-					ev.Allow = false;
+					ev.Item.Remove();
 				}
 			}
-
 		}
 
 		public void OnThrowGrenade(PlayerThrowGrenadeEvent ev)
@@ -109,6 +121,22 @@ namespace itemStacks
 					}
 				}
 			}
+			else
+			{
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
+				bool AlreadySeenThisItem = false;
+				foreach (Smod2.API.Item item in ev.Player.GetInventory())
+				{
+					if (ev.GrenadeType != item.ItemType || AlreadySeenThisItem)
+					{
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
+					}
+					else
+					{
+						AlreadySeenThisItem = true;
+					}
+				}
+			}
 		}
 
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
@@ -123,6 +151,22 @@ namespace itemStacks
 						StackMain.fixUseMedKit = false;
 						ev.Player.GiveItem(ItemType.MEDKIT);
 						StackMain.fixUseMedKit = true; //Looks ugly but is needed to it doesn't add one to my stacking system. 
+					}
+				}
+			}
+			else
+			{
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
+				bool AlreadySeenThisItem = false;
+				foreach (Smod2.API.Item item in ev.Player.GetInventory())
+				{
+					if (Smod2.API.ItemType.MEDKIT != item.ItemType || AlreadySeenThisItem)
+					{
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
+					}
+					else
+					{
+						AlreadySeenThisItem = true;
 					}
 				}
 			}
@@ -175,6 +219,14 @@ namespace itemStacks
 				{
 					StackMain.checkSteamIDItemNum[playa.SteamId].ResetToZero();
 				}
+				else
+				{
+					StackMain.checkSteamIDItemNum[playa.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
+					foreach (Smod2.API.Item item in playa.GetInventory())
+					{
+						StackMain.checkSteamIDItemNum[playa.SteamId].AddItemAmount((int)item.ItemType, 1);
+					}
+				}
 			}
 		}
 
@@ -183,6 +235,14 @@ namespace itemStacks
 			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].ResetToZero();
+			}
+			else
+			{
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
+				foreach (Smod2.API.Item item in ev.Player.GetInventory())
+				{
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
+				}
 			}
 		}
 		
@@ -223,6 +283,10 @@ namespace itemStacks
 									}
 								}
 								StackMain.checkSteamIDItemNum[playa.SteamId].ResetToZero();
+							}
+							else
+							{
+								StackMain.checkSteamIDItemNum[playa.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
 							}
 						}
 					}

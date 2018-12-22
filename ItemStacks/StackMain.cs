@@ -7,10 +7,10 @@ namespace itemStacks
 {
 	[PluginDetails(
 		author = "Mith",
-		name = "Item Stacks",
+		name = "ItemStacks",
 		description = "Items stack to save inventory space.",
 		id = "mith.itemstacks",
-		version = "0.12",
+		version = "0.13",
 		SmodMajor = 3,
 		SmodMinor = 1,
 		SmodRevision = 21
@@ -50,6 +50,7 @@ namespace itemStacks
 
 		public class StackCheckSteamIDsforItemInts
 		{
+
 			Dictionary<int, int> checkItemForNumOfItems = new Dictionary<int, int>();
 
 			public void ResetToZero()
