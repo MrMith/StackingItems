@@ -4,7 +4,6 @@ using Smod2.EventHandlers;
 using Smod2.Events;
 using System;
 using System.Linq;
-
 /*
  * If you're wondering why I'm casting floats on GetConfigInt its because if its set to 0 and I divide by 0 while its a int it will error but floats can handle divide by zero.
  */
@@ -27,7 +26,7 @@ namespace itemStacks
 				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType) >= 1)
 				{
 					int stackSize;
-					if (StackMain.Stack_KeycardOverride != -1 && ev.Item.ToString().ToLower().Contains("keycard"))
+					if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)ev.Item.ItemType))
 					{
 						stackSize = StackMain.Stack_KeycardOverride;
 					}
@@ -81,7 +80,7 @@ namespace itemStacks
 
 			int stackSize;
 
-			if(StackMain.Stack_KeycardOverride != -1 && ev.Item.ToString().ToLower().Contains("keycard"))
+			if(StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)ev.Item.ItemType))
 			{
 				stackSize = StackMain.Stack_KeycardOverride;
 			}
@@ -93,8 +92,6 @@ namespace itemStacks
 			{
 				stackSize = StackMain.GetStackSize((int)ev.Item.ItemType);
 			}
-			plugin.Info(ev.Item.ItemType +"");
-			plugin.Info(stackSize + "");
 			if (StackMain.fixUseMedKit && StackMain.fixthrowGrenade && stackSize >= 2 && !ev.Item.ToString().ToLower().Contains("dropped"))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
@@ -181,7 +178,7 @@ namespace itemStacks
 					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) != -1)
 					{
 						int stackSize;
-						if (StackMain.Stack_KeycardOverride != -1 && item.ToString().ToLower().Contains("keycard"))
+						if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)item))
 						{
 							stackSize = StackMain.Stack_KeycardOverride;
 						}
@@ -264,7 +261,7 @@ namespace itemStacks
 									if (StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) != -1)
 									{
 										int stackSize;
-										if (StackMain.Stack_KeycardOverride != -1 && item.ToString().ToLower().Contains("keycard"))
+										if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)item))
 										{
 											stackSize = StackMain.Stack_KeycardOverride;
 										}
@@ -293,11 +290,20 @@ namespace itemStacks
 				}
 			}
 		}
-
+		
 		public bool ContainsWeapon(int weaponID)
 		{
-			int[] weaponList = {13,16,20,21,23,24};
+			int[] weaponList = {13,16,20,21,23,24,30};
 			if (weaponList.Contains(weaponID))
+			{
+				return true;
+			}
+			return false;
+		}
+		public bool ContainsKeycard(int keycardID)
+		{
+			int[] weaponList = { 0,1,2,3,4,5,6,7,8,9,10,11 };
+			if (weaponList.Contains(keycardID))
 			{
 				return true;
 			}

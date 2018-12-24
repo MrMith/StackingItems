@@ -10,11 +10,12 @@ namespace itemStacks
 		name = "ItemStacks",
 		description = "Items stack to save inventory space.",
 		id = "mith.itemstacks",
-		version = "0.13",
+		version = "0.14",
 		SmodMajor = 3,
-		SmodMinor = 1,
-		SmodRevision = 21
+		SmodMinor = 2,
+		SmodRevision = 1
 		)]
+	//Add stacking to when you escape so you keep everything.
 	class StackMain : Plugin
 	{
 		internal static StackMain plugin;
