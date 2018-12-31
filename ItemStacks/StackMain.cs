@@ -10,12 +10,11 @@ namespace itemStacks
 		name = "ItemStacks",
 		description = "Items stack to save inventory space.",
 		id = "mith.itemstacks",
-		version = "0.14",
+		version = "0.15",
 		SmodMajor = 3,
 		SmodMinor = 2,
 		SmodRevision = 1
 		)]
-	//Add stacking to when you escape so you keep everything.
 	class StackMain : Plugin
 	{
 		internal static StackMain plugin;
@@ -28,6 +27,7 @@ namespace itemStacks
 
 		public static bool fixUseMedKit = true;
 		public static bool fixthrowGrenade = true;
+		public static bool keepItemsOnExtract;
 
 		public static int GetStackSize(int ItemType)
 		{
@@ -52,7 +52,9 @@ namespace itemStacks
 		public class StackCheckSteamIDsforItemInts
 		{
 
-			Dictionary<int, int> checkItemForNumOfItems = new Dictionary<int, int>();
+			public Dictionary<int, int> checkItemForNumOfItems = new Dictionary<int, int>();
+
+			public bool HasEscaped = false;
 
 			public void ResetToZero()
 			{
@@ -104,6 +106,7 @@ namespace itemStacks
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_override_keycard", -1, Smod2.Config.SettingType.NUMERIC, true, "Override all keycards to stack to this."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_override_weapons", -1, Smod2.Config.SettingType.NUMERIC, true, "Override all weapons to stack to this."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_disable", false, Smod2.Config.SettingType.BOOL, true, "Enable or disable this plugin."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("stack_extract", true, Smod2.Config.SettingType.BOOL, true, "Should players keep their items when they extract."));
 
 			foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 			{

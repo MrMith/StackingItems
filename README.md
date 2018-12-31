@@ -8,12 +8,14 @@ Put ItemStack.dll into sm_plugins folder.
 | Config Option              | Value Type      | Default Value | Description |
 |   :---:                    |     :---:       |    :---:      |    :---:    |
 | [stack_ITEMNAME_limit](https://github.com/MrMith/ItemStacks/wiki/Item-config-examples)       | Integer         | 3             | How much ITEMNAME stacks to |
-| stack_override_keycard     | Integer         | -1       | Override all keycards to stack to this. Set this to -1 to disable |
-| stack_override_weapons     | Integer         | -1       | Override all keycards to stack to this. Set this to -1 to disable |
+| stack_override_keycard     | Integer         | -1       | Override all keycards to stack to this. Keep this to -1 to disable |
+| stack_override_weapons     | Integer         | -1       | Override all keycards to stack to this. Keep this to -1 to disable |
 | stack_disable              | Boolean         | false    | Disable the entire ItemStack plugin. |
+| stack_extract              | Boolean         | true     | Should players keep their items when they extract. |
 
 Please note every item stacks to 3 by default.
 For details on how to use stack_ITEMNAME_limit see below.
+
 https://github.com/MrMith/ItemStacks/wiki/Item-config-examples
 
 

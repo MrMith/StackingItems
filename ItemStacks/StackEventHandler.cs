@@ -4,15 +4,19 @@ using Smod2.EventHandlers;
 using Smod2.Events;
 using System;
 using System.Linq;
+using System.Collections.Generic;
+
 /*
  * If you're wondering why I'm casting floats on GetConfigInt its because if its set to 0 and I divide by 0 while its a int it will error but floats can handle divide by zero.
  */
 
 namespace itemStacks
 {
-	class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItemLate, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerRoundStart,IEventHandlerSetRole, IEventHandlerUpdate
+	class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItemLate, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerRoundStart, IEventHandlerSetRole, IEventHandlerUpdate, IEventHandlerCheckEscape
 	{
 		private readonly Plugin plugin;
+
+		DateTime timeOnEvent = DateTime.Now;
 
 		public StackEventHandler(Plugin plugin)
 		{
@@ -59,7 +63,7 @@ namespace itemStacks
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
 				foreach (Smod2.API.Item item in ev.Player.GetInventory())
 				{
-					if(ev.Item != item)
+					if (ev.Item != item)
 					{
 						StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
 					}
@@ -72,7 +76,7 @@ namespace itemStacks
 			if (!StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
-				foreach(Smod2.API.Item item in ev.Player.GetInventory())
+				foreach (Smod2.API.Item item in ev.Player.GetInventory())
 				{
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
 				}
@@ -80,11 +84,11 @@ namespace itemStacks
 
 			int stackSize;
 
-			if(StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)ev.Item.ItemType))
+			if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)ev.Item.ItemType))
 			{
 				stackSize = StackMain.Stack_KeycardOverride;
 			}
-			else if(StackMain.Stack_WeaponOverride != -1 && ContainsWeapon((int)ev.Item.ItemType))
+			else if (StackMain.Stack_WeaponOverride != -1 && ContainsWeapon((int)ev.Item.ItemType))
 			{
 				stackSize = StackMain.Stack_WeaponOverride;
 			}
@@ -109,7 +113,7 @@ namespace itemStacks
 			{
 				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) >= 1)
 				{
-					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.GrenadeType,-1);
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.GrenadeType, -1);
 					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) % StackMain.GetStackSize((int)ev.GrenadeType) != 0)
 					{
 						StackMain.fixthrowGrenade = false;
@@ -121,17 +125,9 @@ namespace itemStacks
 			else
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
-				bool AlreadySeenThisItem = false;
 				foreach (Smod2.API.Item item in ev.Player.GetInventory())
 				{
-					if (ev.GrenadeType != item.ItemType || AlreadySeenThisItem)
-					{
-						StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
-					}
-					else
-					{
-						AlreadySeenThisItem = true;
-					}
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
 				}
 			}
 		}
@@ -154,17 +150,9 @@ namespace itemStacks
 			else
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
-				bool AlreadySeenThisItem = false;
 				foreach (Smod2.API.Item item in ev.Player.GetInventory())
 				{
-					if (Smod2.API.ItemType.MEDKIT != item.ItemType || AlreadySeenThisItem)
-					{
-						StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
-					}
-					else
-					{
-						AlreadySeenThisItem = true;
-					}
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
 				}
 			}
 		}
@@ -210,6 +198,8 @@ namespace itemStacks
 			StackMain.SetStackSize();
 			StackMain.Stack_KeycardOverride = plugin.GetConfigInt("stack_override_keycard");
 			StackMain.Stack_WeaponOverride = plugin.GetConfigInt("stack_override_weapons");
+			StackMain.keepItemsOnExtract = plugin.GetConfigBool("stack_extract");
+
 			foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())
 			{
 				if (StackMain.checkSteamIDItemNum.ContainsKey(playa.SteamId))
@@ -231,7 +221,45 @@ namespace itemStacks
 		{
 			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
-				StackMain.checkSteamIDItemNum[ev.Player.SteamId].ResetToZero();
+				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].HasEscaped)
+				{
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].HasEscaped = false;
+					Dictionary<int, int> EscapedItemList = new Dictionary<int, int>();
+					foreach (KeyValuePair<int,int> keyValuePair in StackMain.checkSteamIDItemNum[ev.Player.SteamId].checkItemForNumOfItems)
+					{
+						EscapedItemList[keyValuePair.Key] = keyValuePair.Value;
+					}
+
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].ResetToZero();
+
+					foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
+					{
+						if (EscapedItemList.TryGetValue((int)item, out int value))
+						{
+							int stackSize;
+							if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)item))
+							{
+								stackSize = StackMain.Stack_KeycardOverride;
+							}
+							else if (StackMain.Stack_WeaponOverride != -1 && ContainsWeapon((int)item))
+							{
+								stackSize = StackMain.Stack_WeaponOverride;
+							}
+							else
+							{
+								stackSize = StackMain.GetStackSize((int)item);
+							}
+							for (int i = 0; i < value; i++)
+							{
+								ev.Items.Add(item);
+							}
+						}
+					}
+				}
+				else
+				{
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].ResetToZero();
+				}
 			}
 			else
 			{
@@ -242,10 +270,9 @@ namespace itemStacks
 				}
 			}
 		}
-		
+
 		public void OnUpdate(UpdateEvent ev) // OnHandCuffed is broke >:(
 		{
-			DateTime timeOnEvent = DateTime.Now;
 			if (DateTime.Now >= timeOnEvent)
 			{
 				timeOnEvent = DateTime.Now.AddSeconds(1.0);
@@ -290,10 +317,22 @@ namespace itemStacks
 				}
 			}
 		}
-		
+
+		public void OnCheckEscape(PlayerCheckEscapeEvent ev)
+		{
+			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId) && StackMain.keepItemsOnExtract)
+			{
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId].HasEscaped = true;
+			}
+			else
+			{
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
+			}
+		}
+
 		public bool ContainsWeapon(int weaponID)
 		{
-			int[] weaponList = {13,16,20,21,23,24,30};
+			int[] weaponList = { 13, 16, 20, 21, 23, 24, 30 };
 			if (weaponList.Contains(weaponID))
 			{
 				return true;
@@ -302,7 +341,7 @@ namespace itemStacks
 		}
 		public bool ContainsKeycard(int keycardID)
 		{
-			int[] weaponList = { 0,1,2,3,4,5,6,7,8,9,10,11 };
+			int[] weaponList = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 			if (weaponList.Contains(keycardID))
 			{
 				return true;
