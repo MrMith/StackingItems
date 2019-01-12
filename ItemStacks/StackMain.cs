@@ -44,9 +44,12 @@ namespace itemStacks
 
 		public static void SetStackSize()
 		{
-			foreach(KeyValuePair<int,int> item in plugin.GetConfigIntDict("itemstack_globaldict"))
+			if(!checkItemForItemStack.Equals(plugin.GetConfigIntDict("itemstack_globaldict")))
 			{
-				checkItemForItemStack[item.Key] = item.Value;
+				foreach (KeyValuePair<int, int> item in plugin.GetConfigIntDict("itemstack_globaldict"))
+				{
+					checkItemForItemStack[item.Key] = item.Value;
+				}
 			}
 		}
 
