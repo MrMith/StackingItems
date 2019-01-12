@@ -1,4 +1,5 @@
 ﻿using Smod2;
+using Smod2.API;
 using Smod2.Attributes;
 using System.Collections.Generic;
 using System;
@@ -10,10 +11,10 @@ namespace itemStacks
 		name = "ItemStacks",
 		description = "Items stack to save inventory space.",
 		id = "mith.itemstacks",
-		version = "0.15",
+		version = "1.00",
 		SmodMajor = 3,
 		SmodMinor = 2,
-		SmodRevision = 1
+		SmodRevision = 2
 		)]
 	class StackMain : Plugin
 	{
@@ -43,9 +44,9 @@ namespace itemStacks
 
 		public static void SetStackSize()
 		{
-			foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
+			foreach(KeyValuePair<int,int> item in plugin.GetConfigIntDict("itemstack_globaldict"))
 			{
-				checkItemForItemStack[(int)item] = StackMain.plugin.GetConfigInt("stack_" + item.ToString().ToLower() + "_limit");
+				checkItemForItemStack[item.Key] = item.Value;
 			}
 		}
 
@@ -99,19 +100,29 @@ namespace itemStacks
 
 		public override void Register()
 		{
+			
+			this.AddEventHandlers(new StackEventHandler(this));
+
 			this.AddCommand("stack_version", new StackVersion(this));
 			this.AddCommand("stack_disable", new StackDisable(this));
-			this.AddEventHandlers(new StackEventHandler(this));
-			
+
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_override_keycard", -1, Smod2.Config.SettingType.NUMERIC, true, "Override all keycards to stack to this."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_override_weapons", -1, Smod2.Config.SettingType.NUMERIC, true, "Override all weapons to stack to this."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_disable", false, Smod2.Config.SettingType.BOOL, true, "Enable or disable this plugin."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("stack_extract", true, Smod2.Config.SettingType.BOOL, true, "Should players keep their items when they extract."));
 
-			foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
+			foreach(ItemType type in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 			{
-				this.AddConfig(new Smod2.Config.ConfigSetting("stack_" + item.ToString().ToLower() + "_limit", 3, Smod2.Config.SettingType.NUMERIC, true, "How much " + item.ToString().ToLower() + " stacks to."));
+				if (type == ItemType.MICROHID || type == ItemType.WEAPON_MANAGER_TABLET)
+				{
+					checkItemForItemStack[(int)type] = 1; // Tablets don't work well with 079 generators and Microhid's can be recharged by picking them up and dropping them.
+				}
+				else
+				{
+					checkItemForItemStack[(int)type] = 3;
+				}
 			}
+			this.AddConfig(new Smod2.Config.ConfigSetting("itemstack_globaldict", checkItemForItemStack, Smod2.Config.SettingType.NUMERIC_DICTIONARY, true, "Dictionary that keeps stacksizes of all items in the game."));
 		}
 	}
 }
