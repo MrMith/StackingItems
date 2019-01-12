@@ -5,7 +5,6 @@ using Smod2.Events;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-
 /*
  * If you're wondering why I'm casting floats on GetConfigInt its because if its set to 0 and I divide by 0 while its a int it will error but floats can handle divide by zero and I don't want the value to be a float by default.
  */
@@ -40,9 +39,9 @@ namespace StackingItems
 						stackSize = StackMain.Stack_KeycardOverride;
 					}
 
-					if (StackMain.Stack_WeaponOverride != -1 && ContainsWeapon((int)ev.Item.ItemType))
+					if (ContainsWeapon((int)ev.Item.ItemType))
 					{
-						stackSize = StackMain.Stack_WeaponOverride;
+						stackSize = 1;
 					}
 
 					if (stackSize == 0)
@@ -96,22 +95,22 @@ namespace StackingItems
 
 			int stackSize = 0;
 
-			if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)ev.Item.ItemType))
+			if(StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)ev.Item.ItemType))
 			{
 				stackSize = StackMain.Stack_KeycardOverride;
 			}
 
-			if (StackMain.Stack_WeaponOverride != -1 && ContainsWeapon((int)ev.Item.ItemType))
+			if(ContainsWeapon((int)ev.Item.ItemType))
 			{
-				stackSize = StackMain.Stack_WeaponOverride;
+				stackSize = 1;
 			}
 
-			if (stackSize == 0)
+			if(stackSize == 0)
 			{
 				stackSize = StackMain.GetStackSize((int)ev.Item.ItemType);
 			}
 
-			if (StackMain.fixUseMedKit && StackMain.fixthrowGrenade && stackSize >= 2 && !ev.Item.ToString().ToLower().Contains("dropped"))
+			if(StackMain.fixUseMedKit && StackMain.fixthrowGrenade && stackSize >= 2 && !ev.Item.ToString().ToLower().Contains("dropped"))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
 				int ItemAmount = StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
@@ -202,9 +201,9 @@ namespace StackingItems
 							stackSize = StackMain.Stack_KeycardOverride;
 						}
 
-						if (StackMain.Stack_WeaponOverride != -1 && ContainsWeapon((int)item))
+						if (ContainsWeapon((int)item))
 						{
-							stackSize = StackMain.Stack_WeaponOverride;
+							stackSize = 1;
 						}
 
 						if (stackSize == 0)
@@ -236,7 +235,6 @@ namespace StackingItems
 			}
 			StackMain.SetStackSize();
 			StackMain.Stack_KeycardOverride = plugin.GetConfigInt("si_override_keycard");
-			StackMain.Stack_WeaponOverride = plugin.GetConfigInt("si_override_weapons");
 			StackMain.keepItemsOnExtract = plugin.GetConfigBool("si_extract");
 
 			foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())
@@ -287,9 +285,9 @@ namespace StackingItems
 								stackSize = StackMain.Stack_KeycardOverride;
 							}
 
-							if (StackMain.Stack_WeaponOverride != -1 && ContainsWeapon((int)item))
+							if (ContainsWeapon((int)item))
 							{
-								stackSize = StackMain.Stack_WeaponOverride;
+								stackSize = 1;
 							}
 
 							if (stackSize == 0)
@@ -347,9 +345,9 @@ namespace StackingItems
 											stackSize = StackMain.Stack_KeycardOverride;
 										}
 
-										if (StackMain.Stack_WeaponOverride != -1 && ContainsWeapon((int)item))
+										if (ContainsWeapon((int)item))
 										{
-											stackSize = StackMain.Stack_WeaponOverride;
+											stackSize = 1;
 										}
 
 										if(stackSize == 0)
@@ -401,7 +399,7 @@ namespace StackingItems
 		/// <param name="weaponID"></param>
 		public bool ContainsWeapon(int weaponID)
 		{
-			int[] weaponList = { 13, 20, 21, 23, 24, 30 };
+			int[] weaponList = { 13, 16, 20, 21, 23, 24, 30 };
 			if (weaponList.Contains(weaponID))
 			{
 				return true;

@@ -9,11 +9,10 @@ Put StackingItems.dll into sm_plugins folder.
 |   :---:                    |     :---:       |    :---:      |    :---:    |
 | si_globaldict       | Dictionary      | 3 for every item            | Dictionary that keeps stacksizes of all items in the game. |
 | si_override_keycard     | Integer         | -1       | Override all keycards to stack to this. Keep this to -1 to disable |
-| si_override_weapons     | Integer         | -1       | Override all keycards to stack to this. Keep this to -1 to disable |
 | si_disable              | Boolean         | false    | Disable the entire StackingItems plugin. |
 | si_extract              | Boolean         | true     | Should players keep their items when they extract. |
 
-Stacksize for Tablet and MicroHID are at 1 because tablet doesn't play well with 079 and MicroHID can be abused by dropping and picking them up to recharge for free.
+All weapons (MicroHID,COM15,ect...) have their stacksize force set to 1 till I get around to fixing them.
 
 Example for si_globaldict:25:5,14:4 would be frag grenade at 5 and medkit at 4 for stacksize.
 
