@@ -1,0 +1,7 @@
+D:\steamcmd\steamapps\common\SCP Secret Laboratory\sm_plugins\blackvoidFix.dll
+D:\steamcmd\steamapps\common\SCP Secret Laboratory\sm_plugins\blackvoidFix.pdb
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\blackvoidFix.csprojAssemblyReference.cache
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\blackvoidFix.csproj.CoreCompileInputs.cache
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\blackvoidFix.csproj.CopyComplete
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\blackvoidFix.dll
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\blackvoidFix.pdb

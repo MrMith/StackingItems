@@ -1,0 +1,10 @@
+D:\Programming\C#\SCPSL\TEST\TEST\bin\Debug\TEST.dll
+D:\Programming\C#\SCPSL\TEST\TEST\bin\Debug\TEST.pdb
+D:\Programming\C#\SCPSL\TEST\TEST\bin\Debug\Smod2.dll
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\TEST.csproj.CoreCompileInputs.cache
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\TEST.csproj.CopyComplete
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\TEST.dll
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\TEST.pdb
+D:\Programming\C#\SCPSL\TEST\TEST\obj\Debug\TEST.csprojAssemblyReference.cache
+D:\steamcmd\steamapps\common\SCP Secret Laboratory\sm_plugins\TEST.dll
+D:\steamcmd\steamapps\common\SCP Secret Laboratory\sm_plugins\TEST.pdb
