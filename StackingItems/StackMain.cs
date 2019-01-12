@@ -11,7 +11,7 @@ namespace StackingItems
 		name = "StackingItems",
 		description = "Items stack to save inventory space.",
 		id = "mith.StackingItems",
-		version = "1.01",
+		version = "1.02",
 		SmodMajor = 3,
 		SmodMinor = 2,
 		SmodRevision = 2
@@ -113,7 +113,7 @@ namespace StackingItems
 
 			foreach(ItemType type in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 			{
-				checkItemForItemStack[(int)type] = 3;
+				checkItemForItemStack[(int)type] = 1;
 			}
 			this.AddConfig(new Smod2.Config.ConfigSetting("si_globaldict", checkItemForItemStack, Smod2.Config.SettingType.NUMERIC_DICTIONARY, true, "Dictionary that keeps stacksizes of all items in the game."));
 		}
