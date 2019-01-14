@@ -11,7 +11,7 @@ namespace StackingItems
 		name = "StackingItems",
 		description = "Items stack to save inventory space.",
 		id = "mith.StackingItems",
-		version = "1.02",
+		version = "1.0.3",
 		SmodMajor = 3,
 		SmodMinor = 2,
 		SmodRevision = 2
@@ -28,6 +28,7 @@ namespace StackingItems
 		public static bool fixUseMedKit = true;
 		public static bool fixthrowGrenade = true;
 		public static bool keepItemsOnExtract;
+		public static int globalstacksize = 1;
 
 		public static int GetStackSize(int ItemType)
 		{
@@ -45,9 +46,23 @@ namespace StackingItems
 		{
 			if(!checkItemForItemStack.Equals(plugin.GetConfigIntDict("si_globaldict")))
 			{
-				foreach (KeyValuePair<int, int> item in plugin.GetConfigIntDict("si_globaldict"))
+				if(globalstacksize != 1)
 				{
-					checkItemForItemStack[item.Key] = item.Value;
+					foreach (ItemType type in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
+					{
+						checkItemForItemStack[(int)type] = globalstacksize;
+					}
+					foreach (KeyValuePair<int, int> item in plugin.GetConfigIntDict("si_globaldict"))
+					{
+						checkItemForItemStack[item.Key] = item.Value;
+					}
+				}
+				else
+				{
+					foreach (KeyValuePair<int, int> item in plugin.GetConfigIntDict("si_globaldict"))
+					{
+						checkItemForItemStack[item.Key] = item.Value;
+					}
 				}
 			}
 		}
@@ -110,7 +125,8 @@ namespace StackingItems
 			this.AddConfig(new Smod2.Config.ConfigSetting("si_override_keycard", -1, Smod2.Config.SettingType.NUMERIC, true, "Override all keycards to stack to this."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("si_disable", false, Smod2.Config.SettingType.BOOL, true, "Enable or disable this plugin."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("si_extract", true, Smod2.Config.SettingType.BOOL, true, "Should players keep their items when they extract."));
-
+			this.AddConfig(new Smod2.Config.ConfigSetting("si_globalstacksize", 1, Smod2.Config.SettingType.NUMERIC, true, "If this is set to anything over 1 this will change every stacksize for every item to this. si_globaldict values will still be set"));
+			
 			foreach(ItemType type in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 			{
 				checkItemForItemStack[(int)type] = 1;

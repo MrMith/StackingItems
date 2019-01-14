@@ -233,10 +233,12 @@ namespace StackingItems
 				Smod2.PluginManager.Manager.DisablePlugin(plugin.Details.id);
 				return;
 			}
-			StackMain.SetStackSize();
+
 			StackMain.Stack_KeycardOverride = plugin.GetConfigInt("si_override_keycard");
 			StackMain.keepItemsOnExtract = plugin.GetConfigBool("si_extract");
-
+			StackMain.globalstacksize = plugin.GetConfigInt("si_globalstacksize");
+			StackMain.SetStackSize();
+			
 			foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())
 			{
 				if (StackMain.checkSteamIDItemNum.ContainsKey(playa.SteamId))
