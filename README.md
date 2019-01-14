@@ -10,7 +10,7 @@ Put StackingItems.dll into sm_plugins folder.
 | si_globaldict       | Dictionary      | 1 for every item            | Dictionary that keeps stacksizes of all items in the game. |
 | si_override_keycard     | Integer         | -1       | Override all keycards to stack to this. Keep this to -1 to disable |
 | si_disable              | Boolean         | false    | Disable the entire StackingItems plugin. |
-| si_extract              | Boolean         | true     | Should players keep their items when they extract. |
+| si_extract              | Boolean         | true     | Should players keep their items when they extract as D-Class or Scientist. |
 | si_globalstacksize      | Integer         | 1        | If this is set to anything over 1 this will change every stacksize for every item to this. si_globaldict values will still be set|
 
 All weapons (MicroHID,COM15,ect...) have their stacksize force set to 1 till I get around to fixing them.
