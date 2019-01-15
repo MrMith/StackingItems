@@ -11,7 +11,7 @@ namespace StackingItems
 		name = "StackingItems",
 		description = "Items stack to save inventory space.",
 		id = "mith.StackingItems",
-		version = "1.0.3",
+		version = "1.0.4",
 		SmodMajor = 3,
 		SmodMinor = 2,
 		SmodRevision = 2
@@ -20,13 +20,11 @@ namespace StackingItems
 	{
 		internal static StackMain plugin;
 
-		public static Dictionary<string, StackCheckSteamIDsforItemInts > checkSteamIDItemNum = new Dictionary<string, StackCheckSteamIDsforItemInts>();
+		public static Dictionary<string, StackCheckSteamIDsforItemInts> checkSteamIDItemNum = new Dictionary<string, StackCheckSteamIDsforItemInts>();
 		public static Dictionary<int, int> checkItemForItemStack = new Dictionary<int, int>();
 
 		public static int Stack_KeycardOverride;
 
-		public static bool fixUseMedKit = true;
-		public static bool fixthrowGrenade = true;
 		public static bool keepItemsOnExtract;
 		public static int globalstacksize = 1;
 
@@ -34,7 +32,7 @@ namespace StackingItems
 		{
 			if (checkItemForItemStack.TryGetValue(ItemType, out int value))
 			{
-				return checkItemForItemStack[ItemType];
+				return value;
 			}
 			else
 			{
@@ -44,25 +42,22 @@ namespace StackingItems
 
 		public static void SetStackSize()
 		{
-			if(!checkItemForItemStack.Equals(plugin.GetConfigIntDict("si_globaldict")))
+			if (globalstacksize != 1)
 			{
-				if(globalstacksize != 1)
+				foreach (ItemType type in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 				{
-					foreach (ItemType type in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
-					{
-						checkItemForItemStack[(int)type] = globalstacksize;
-					}
-					foreach (KeyValuePair<int, int> item in plugin.GetConfigIntDict("si_globaldict"))
-					{
-						checkItemForItemStack[item.Key] = item.Value;
-					}
+					checkItemForItemStack[(int)type] = globalstacksize;
 				}
-				else
+				foreach (KeyValuePair<int, int> item in plugin.GetConfigIntDict("si_globaldict"))
 				{
-					foreach (KeyValuePair<int, int> item in plugin.GetConfigIntDict("si_globaldict"))
-					{
-						checkItemForItemStack[item.Key] = item.Value;
-					}
+					checkItemForItemStack[item.Key] = item.Value;
+				}
+			}
+			else
+			{
+				foreach (KeyValuePair<int, int> item in plugin.GetConfigIntDict("si_globaldict"))
+				{
+					checkItemForItemStack[item.Key] = item.Value;
 				}
 			}
 		}
@@ -70,6 +65,9 @@ namespace StackingItems
 		public class StackCheckSteamIDsforItemInts
 		{
 			public Dictionary<int, int> checkItemForNumOfItems = new Dictionary<int, int>();
+
+			public bool fixUseMedKit = false;
+			public bool fixthrowGrenade = false;
 
 			public bool HasEscaped = false;
 
@@ -82,7 +80,7 @@ namespace StackingItems
 			{
 				if (checkItemForNumOfItems.TryGetValue(ItemType, out int value))
 				{
-					return checkItemForNumOfItems[ItemType];
+					return value;
 				}
 				else
 				{
@@ -90,7 +88,7 @@ namespace StackingItems
 				}
 			}
 
-			public void AddItemAmount(int ItemType,int Amount)
+			public void AddItemAmount(int ItemType, int Amount)
 			{
 				if (checkItemForNumOfItems.TryGetValue(ItemType, out int value))
 				{
@@ -116,7 +114,7 @@ namespace StackingItems
 
 		public override void Register()
 		{
-			
+
 			this.AddEventHandlers(new StackEventHandler(this));
 
 			this.AddCommand("si_version", new StackVersion(this));
@@ -126,12 +124,7 @@ namespace StackingItems
 			this.AddConfig(new Smod2.Config.ConfigSetting("si_disable", false, Smod2.Config.SettingType.BOOL, true, "Enable or disable this plugin."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("si_extract", true, Smod2.Config.SettingType.BOOL, true, "Should players keep their items when they extract."));
 			this.AddConfig(new Smod2.Config.ConfigSetting("si_globalstacksize", 1, Smod2.Config.SettingType.NUMERIC, true, "If this is set to anything over 1 this will change every stacksize for every item to this. si_globaldict values will still be set"));
-			
-			foreach(ItemType type in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
-			{
-				checkItemForItemStack[(int)type] = 1;
-			}
-			this.AddConfig(new Smod2.Config.ConfigSetting("si_globaldict", checkItemForItemStack, Smod2.Config.SettingType.NUMERIC_DICTIONARY, true, "Dictionary that keeps stacksizes of all items in the game."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("si_globaldict", new Dictionary<int, int> { }, Smod2.Config.SettingType.NUMERIC_DICTIONARY, true, "Dictionary that keeps custom stacksizes for items."));
 		}
 	}
 }

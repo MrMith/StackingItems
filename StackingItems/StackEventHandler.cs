@@ -32,28 +32,11 @@ namespace StackingItems
 			{
 				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType) >= 1)
 				{
-					int stackSize = 0;
-
-					if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)ev.Item.ItemType))
-					{
-						stackSize = StackMain.Stack_KeycardOverride;
-					}
-
-					if (ContainsWeapon((int)ev.Item.ItemType))
-					{
-						stackSize = 1;
-					}
-
-					if (stackSize == 0)
-					{
-						stackSize = StackMain.GetStackSize((int)ev.Item.ItemType);
-					}
-
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, -1);
 
 					int ItemAmount = StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
 
-					if (ItemAmount % stackSize == 0)
+					if (ItemAmount % GetStackSizeOfItem((int)ev.Item.ItemType) == 0)
 					{
 						ev.Allow = true;
 					}
@@ -93,28 +76,19 @@ namespace StackingItems
 				}
 			}
 
-			int stackSize = 0;
-
-			if(StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)ev.Item.ItemType))
+			if (ev.Item.ItemType == ItemType.FRAG_GRENADE || ev.Item.ItemType == ItemType.FLASHBANG || ev.Item.ItemType == ItemType.MEDKIT)
 			{
-				stackSize = StackMain.Stack_KeycardOverride;
+				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixUseMedKit || StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade)
+				{
+					return;
+				}
 			}
 
-			if(ContainsWeapon((int)ev.Item.ItemType))
-			{
-				stackSize = 1;
-			}
-
-			if(stackSize == 0)
-			{
-				stackSize = StackMain.GetStackSize((int)ev.Item.ItemType);
-			}
-
-			if(StackMain.fixUseMedKit && StackMain.fixthrowGrenade && stackSize >= 2 && !ev.Item.ToString().ToLower().Contains("dropped"))
+			if (GetStackSizeOfItem((int)ev.Item.ItemType) >= 2 && !ev.Item.ToString().ToLower().Contains("dropped"))
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
 				int ItemAmount = StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
-				if (ItemAmount % stackSize != 1)
+				if (ItemAmount % GetStackSizeOfItem((int)ev.Item.ItemType) != 1)
 				{
 					ev.Item.Remove();
 				}
@@ -135,9 +109,9 @@ namespace StackingItems
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.GrenadeType, -1);
 					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) % StackMain.GetStackSize((int)ev.GrenadeType) != 0)
 					{
-						StackMain.fixthrowGrenade = false;
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade = true;
 						ev.Player.GiveItem(ev.GrenadeType);
-						StackMain.fixthrowGrenade = true; //Looks ugly but is needed so it doesn't add one to my stacking system.
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade = false; //Looks ugly but is needed so it doesn't add one to my stacking system.
 					}
 				}
 			}
@@ -165,9 +139,9 @@ namespace StackingItems
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ItemType.MEDKIT, -1);
 					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ItemType.MEDKIT) % StackMain.GetStackSize((int)ItemType.MEDKIT) != 0)
 					{
-						StackMain.fixUseMedKit = false;
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixUseMedKit = false;
 						ev.Player.GiveItem(ItemType.MEDKIT);
-						StackMain.fixUseMedKit = true; //Looks ugly but is needed to it doesn't add one to my stacking system. 
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixUseMedKit = true;
 					}
 				}
 			}
@@ -194,24 +168,7 @@ namespace StackingItems
 				{
 					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) != -1)
 					{
-						int stackSize = 0;
-
-						if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)item))
-						{
-							stackSize = StackMain.Stack_KeycardOverride;
-						}
-
-						if (ContainsWeapon((int)item))
-						{
-							stackSize = 1;
-						}
-
-						if (stackSize == 0)
-						{
-							stackSize = StackMain.GetStackSize((int)item);
-						}
-
-						for (int i = 0; i < (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) - Math.Ceiling((float)StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) / (float)stackSize)); i++)
+						for (int i = 0; i < (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) - Math.Ceiling((float)StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) / (float)GetStackSizeOfItem((int)item))); i++)
 						{
 							Smod2.PluginManager.Manager.Server.Map.SpawnItem(item, ev.Player.GetPosition(), new Vector(0, 0, 0));
 						}
@@ -238,7 +195,7 @@ namespace StackingItems
 			StackMain.keepItemsOnExtract = plugin.GetConfigBool("si_extract");
 			StackMain.globalstacksize = plugin.GetConfigInt("si_globalstacksize");
 			StackMain.SetStackSize();
-			
+
 			foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())
 			{
 				if (StackMain.checkSteamIDItemNum.ContainsKey(playa.SteamId))
@@ -269,7 +226,7 @@ namespace StackingItems
 				{
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].HasEscaped = false;
 					Dictionary<int, int> EscapedItemList = new Dictionary<int, int>();
-					foreach (KeyValuePair<int,int> keyValuePair in StackMain.checkSteamIDItemNum[ev.Player.SteamId].checkItemForNumOfItems)
+					foreach (KeyValuePair<int, int> keyValuePair in StackMain.checkSteamIDItemNum[ev.Player.SteamId].checkItemForNumOfItems)
 					{
 						EscapedItemList[keyValuePair.Key] = keyValuePair.Value;
 					}
@@ -280,23 +237,6 @@ namespace StackingItems
 					{
 						if (EscapedItemList.TryGetValue((int)item, out int value))
 						{
-							int stackSize = 0;
-
-							if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)item))
-							{
-								stackSize = StackMain.Stack_KeycardOverride;
-							}
-
-							if (ContainsWeapon((int)item))
-							{
-								stackSize = 1;
-							}
-
-							if (stackSize == 0)
-							{
-								stackSize = StackMain.GetStackSize((int)item);
-							}
-
 							for (int i = 0; i < value; i++)
 							{
 								ev.Items.Add(item);
@@ -332,48 +272,24 @@ namespace StackingItems
 				{
 					foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())
 					{
-						if (playa.IsHandcuffed())
+						if (StackMain.checkSteamIDItemNum.ContainsKey(playa.SteamId) && playa.IsHandcuffed())
 						{
-							if (StackMain.checkSteamIDItemNum.ContainsKey(playa.SteamId))
+							foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 							{
-								foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
+								if (StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) != -1)
 								{
-									if (StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) != -1)
+									for (int i = 0; i < (StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) - Math.Ceiling((float)StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) / (float)GetStackSizeOfItem((int)item))); i++)
 									{
-										int stackSize = 0;
-
-										if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard((int)item))
-										{
-											stackSize = StackMain.Stack_KeycardOverride;
-										}
-
-										if (ContainsWeapon((int)item))
-										{
-											stackSize = 1;
-										}
-
-										if(stackSize == 0)
-										{
-											stackSize = StackMain.GetStackSize((int)item);
-										}
-
-										for (int i = 0; i < (StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) - Math.Ceiling((float)StackMain.checkSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) / (float)stackSize)); i++)
-										{
-											Smod2.PluginManager.Manager.Server.Map.SpawnItem(item, playa.GetPosition(), new Vector(0, 0, 0));
-										}
+										Smod2.PluginManager.Manager.Server.Map.SpawnItem(item, playa.GetPosition(), new Vector(0, 0, 0));
 									}
 								}
-								StackMain.checkSteamIDItemNum[playa.SteamId].ResetToZero();
 							}
-							else
-							{
-								StackMain.checkSteamIDItemNum[playa.SteamId] = new StackMain.StackCheckSteamIDsforItemInts();
-							}
+							StackMain.checkSteamIDItemNum[playa.SteamId].ResetToZero();
 						}
 					}
 				}
 			}
-			
+
 		}
 		#endregion
 
@@ -398,7 +314,6 @@ namespace StackingItems
 		/// <summary>
 		/// Easy way to check if a itemtype is a weapon or keycard.
 		/// </summary>
-		/// <param name="weaponID"></param>
 		public bool ContainsWeapon(int weaponID)
 		{
 			int[] weaponList = { 13, 16, 20, 21, 23, 24, 30 };
@@ -418,5 +333,19 @@ namespace StackingItems
 			return false;
 		}
 		#endregion
+
+		public int GetStackSizeOfItem(int itemType)
+		{
+			if (StackMain.Stack_KeycardOverride != -1 && ContainsKeycard(itemType))
+			{
+				return StackMain.Stack_KeycardOverride;
+			}
+
+			if (ContainsWeapon(itemType))
+			{
+				return 1;
+			}
+			return StackMain.GetStackSize(itemType);
+		}
 	}
 }

@@ -7,7 +7,7 @@ Put StackingItems.dll into sm_plugins folder.
 ## Config Options.
 | Config Option              | Value Type      | Default Value | Description |
 |   :---:                    |     :---:       |    :---:      |    :---:    |
-| si_globaldict       | Dictionary      | 1 for every item            | Dictionary that keeps stacksizes of all items in the game. |
+| si_globaldict           | Dictionary      | Empty Dictionary           | Dictionary that keeps custom stacksizes for items. |
 | si_override_keycard     | Integer         | -1       | Override all keycards to stack to this. Keep this to -1 to disable |
 | si_disable              | Boolean         | false    | Disable the entire StackingItems plugin. |
 | si_extract              | Boolean         | true     | Should players keep their items when they extract as D-Class or Scientist. |
