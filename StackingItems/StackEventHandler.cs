@@ -225,17 +225,14 @@ namespace StackingItems
 				if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].HasEscaped)
 				{
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].HasEscaped = false;
-					Dictionary<int, int> EscapedItemList = new Dictionary<int, int>();
-					foreach (KeyValuePair<int, int> keyValuePair in StackMain.checkSteamIDItemNum[ev.Player.SteamId].checkItemForNumOfItems)
-					{
-						EscapedItemList[keyValuePair.Key] = keyValuePair.Value;
-					}
 
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].ResetToZero();
-
+					ev.Player.SetAmmo(AmmoType.DROPPED_9, StackMain.checkSteamIDItemNum[ev.Player.SteamId].ammo9 + ev.Player.GetAmmo(AmmoType.DROPPED_9));
+					ev.Player.SetAmmo(AmmoType.DROPPED_7, StackMain.checkSteamIDItemNum[ev.Player.SteamId].ammo7 + ev.Player.GetAmmo(AmmoType.DROPPED_7));
+					ev.Player.SetAmmo(AmmoType.DROPPED_5, StackMain.checkSteamIDItemNum[ev.Player.SteamId].ammo5 + ev.Player.GetAmmo(AmmoType.DROPPED_5));
 					foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 					{
-						if (EscapedItemList.TryGetValue((int)item, out int value))
+						if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].EscapedItemList.TryGetValue((int)item, out int value))
 						{
 							for (int i = 0; i < value; i++)
 							{
@@ -243,6 +240,7 @@ namespace StackingItems
 							}
 						}
 					}
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].EscapedItemList.Clear();
 				}
 				else
 				{
@@ -295,13 +293,35 @@ namespace StackingItems
 
 		#region OnCheckEscape
 		/// <summary>
-		/// Checks if they have escaped to transfer item stacks over.
+		/// Checks if they have escaped to transfer item stacks and ammo over.
 		/// </summary>
 		public void OnCheckEscape(PlayerCheckEscapeEvent ev)
 		{
 			if (StackMain.checkSteamIDItemNum.ContainsKey(ev.Player.SteamId) && StackMain.keepItemsOnExtract)
 			{
 				StackMain.checkSteamIDItemNum[ev.Player.SteamId].HasEscaped = true;
+				foreach(KeyValuePair<int,int> kv in StackMain.checkSteamIDItemNum[ev.Player.SteamId].checkItemTypeForNumOfItems)
+				{
+					StackMain.checkSteamIDItemNum[ev.Player.SteamId].EscapedItemList[kv.Key] = kv.Value;
+				}
+
+				foreach(Item item in ev.Player.GetInventory())
+				{
+					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item.ItemType) != 0) continue;
+					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].EscapedItemList.ContainsKey((int)item.ItemType))
+					{
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].EscapedItemList[(int)item.ItemType]++;
+					}
+					else
+					{
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].EscapedItemList[(int)item.ItemType] = 1;
+					}
+					
+				}
+
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId].ammo9 = ev.Player.GetAmmo(AmmoType.DROPPED_9);
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId].ammo7 = ev.Player.GetAmmo(AmmoType.DROPPED_7);
+				StackMain.checkSteamIDItemNum[ev.Player.SteamId].ammo5 = ev.Player.GetAmmo(AmmoType.DROPPED_5);
 			}
 			else
 			{

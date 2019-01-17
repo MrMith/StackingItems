@@ -11,7 +11,7 @@ namespace StackingItems
 		name = "StackingItems",
 		description = "Items stack to save inventory space.",
 		id = "mith.StackingItems",
-		version = "1.0.4",
+		version = "1.0.5",
 		SmodMajor = 3,
 		SmodMinor = 2,
 		SmodRevision = 2
@@ -64,7 +64,12 @@ namespace StackingItems
 
 		public class StackCheckSteamIDsforItemInts
 		{
-			public Dictionary<int, int> checkItemForNumOfItems = new Dictionary<int, int>();
+			public Dictionary<int, int> checkItemTypeForNumOfItems = new Dictionary<int, int>();
+			public Dictionary<int, int> EscapedItemList = new Dictionary<int, int>();
+
+			public int ammo9 = 0,
+				ammo7 = 0,
+				ammo5 = 0;
 
 			public bool fixUseMedKit = false;
 			public bool fixthrowGrenade = false;
@@ -73,30 +78,30 @@ namespace StackingItems
 
 			public void ResetToZero()
 			{
-				checkItemForNumOfItems.Clear();
+				checkItemTypeForNumOfItems.Clear();
 			}
 
 			public int GetItemAmount(int ItemType)
 			{
-				if (checkItemForNumOfItems.TryGetValue(ItemType, out int value))
+				if (checkItemTypeForNumOfItems.TryGetValue(ItemType, out int value))
 				{
 					return value;
 				}
 				else
 				{
-					return -1;
+					return 0;
 				}
 			}
 
 			public void AddItemAmount(int ItemType, int Amount)
 			{
-				if (checkItemForNumOfItems.TryGetValue(ItemType, out int value))
+				if (checkItemTypeForNumOfItems.TryGetValue(ItemType, out int value))
 				{
-					checkItemForNumOfItems[ItemType] += Amount;
+					checkItemTypeForNumOfItems[ItemType] += Amount;
 				}
 				else
 				{
-					checkItemForNumOfItems[ItemType] = Amount;
+					checkItemTypeForNumOfItems[ItemType] = Amount;
 				}
 			}
 		}
