@@ -1,5 +1,5 @@
 # StackingItems
-
+This is a server plugin for [SCP:SL.](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory)
 ## Install Instructions.
 Put StackingItems.dll into sm_plugins folder.
 
