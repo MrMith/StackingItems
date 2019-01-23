@@ -139,9 +139,9 @@ namespace StackingItems
 					StackMain.checkSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ItemType.MEDKIT, -1);
 					if (StackMain.checkSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ItemType.MEDKIT) % StackMain.GetStackSize((int)ItemType.MEDKIT) != 0)
 					{
-						StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixUseMedKit = false;
-						ev.Player.GiveItem(ItemType.MEDKIT);
 						StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixUseMedKit = true;
+						ev.Player.GiveItem(ItemType.MEDKIT);
+						StackMain.checkSteamIDItemNum[ev.Player.SteamId].fixUseMedKit = false;
 					}
 				}
 			}
