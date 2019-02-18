@@ -12,8 +12,11 @@ Put StackingItems.dll into sm_plugins folder.
 | si_disable              | Boolean         | false    | Disable the entire Stacking Items plugin. |
 | si_extract              | Boolean         | true     | Should a player save items when they are rescued as D-class or Scientist.|
 | si_globalstacksize      | Integer         | 1        | If this is set to anything over 1 this will change every stacksize for every item to this. si_globaldict values will still be set|
+| si_914enable            | Boolean         | true     | Should player's inventory interact with 914. Set to false to disable any interaction with 914 (Items will be removed if disabled and generally be glitchy) |
+| si_914handorinv         | Integer         | 0        | Integer value that decides wether to not touch the inventory and just pass items along or upgrade item in hand or the whole user's inventory. 0 = Transfer items no upgrades, 1 = Entire inventory gets upgraded, 2 = just hand gets upgraded. |
+| si_914itemstosave       | Integer Dictionary | 12,14,15,17,18,19   | Any itemtype in this list will NOT be consumed by 914 while in inventory or hand. |
 
-All weapons (MicroHID, COM15, etc.) have a stack size of 1, until I find time to fix them.
+All weapons (MicroHID, COM15, etc.) have a stack size of 1. After trying to design a system for keeping track of attachments and ammo I couldn't find anything was intuitive to use so this plugins will NEVER support weapons.
 
 If you set the stack size below 1, it will behave like normal game behavior.
 
