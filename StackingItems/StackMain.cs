@@ -1,8 +1,6 @@
 ﻿using Smod2;
-using Smod2.API;
 using Smod2.Attributes;
 using System.Collections.Generic;
-using System;
 
 namespace StackingItems
 {
@@ -11,7 +9,7 @@ namespace StackingItems
 		name = "StackingItems",
 		description = "Items stack to save inventory space.",
 		id = "mith.StackingItems",
-		version = "1.1.0",
+		version = "1.1.1",
 		SmodMajor = 3,
 		SmodMinor = 3,
 		SmodRevision = 0

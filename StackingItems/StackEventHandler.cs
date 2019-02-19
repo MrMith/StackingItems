@@ -3,7 +3,6 @@ using Smod2.API;
 using Smod2.EventHandlers;
 using Smod2.Events;
 using StackingItems.Managers;
-using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -186,7 +185,6 @@ namespace StackingItems
 				CheckSteamIDItemNum[ev.Player.SteamId].ResetToZero();
 				CheckSteamIDItemNum[ev.Player.SteamId].TempItemList.Clear();
 				CheckSteamIDItemNum[ev.Player.SteamId].Escape = false;
-				CheckSteamIDItemNum[ev.Player.SteamId]._914Transfer = false;
 			}
 		}
 		#endregion
@@ -236,12 +234,7 @@ namespace StackingItems
 				if (CheckSteamIDItemNum[ev.Player.SteamId].Escape)
 				{
 					CheckSteamIDItemNum[ev.Player.SteamId].Escape = false;
-					ApplyTransferedItems((GameObject)ev.Player.GetGameObject());
-				}
-				else if (CheckSteamIDItemNum[ev.Player.SteamId]._914Transfer)
-				{
-					CheckSteamIDItemNum[ev.Player.SteamId]._914Transfer = false;
-					ApplyTransferedItems((GameObject)ev.Player.GetGameObject(),true);
+					CheckSteamIDItemNum[ev.Player.SteamId].ApplyTransferedItems((GameObject)ev.Player.GetGameObject());
 				}
 				else
 				{
@@ -256,35 +249,6 @@ namespace StackingItems
 					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
 				}
 			}
-		}
-
-		public async void ApplyTransferedItems(UnityEngine.GameObject gameObject, bool clear = false)
-		{
-			await Task.Delay(250);
-			Smod2.API.Player playa = new ServerMod2.API.SmodPlayer(gameObject);
-			if(clear)
-			{
-				foreach (Smod2.API.Item item in playa.GetInventory())
-				{
-					item.Remove();
-				}
-			}
-
-			CheckSteamIDItemNum[playa.SteamId].ResetToZero();
-			playa.SetAmmo(AmmoType.DROPPED_9, CheckSteamIDItemNum[playa.SteamId].ammo9 + playa.GetAmmo(AmmoType.DROPPED_9));
-			playa.SetAmmo(AmmoType.DROPPED_7, CheckSteamIDItemNum[playa.SteamId].ammo7 + playa.GetAmmo(AmmoType.DROPPED_7));
-			playa.SetAmmo(AmmoType.DROPPED_5, CheckSteamIDItemNum[playa.SteamId].ammo5 + playa.GetAmmo(AmmoType.DROPPED_5));
-			foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
-			{
-				if (CheckSteamIDItemNum[playa.SteamId].TempItemList.TryGetValue((int)item, out int value))
-				{
-					for (int i = 0; i < value; i++)
-					{
-						playa.GiveItem(item);
-					}
-				}
-			}
-			CheckSteamIDItemNum[playa.SteamId].TempItemList.Clear();
 		}
 
 		#endregion
@@ -359,32 +323,18 @@ namespace StackingItems
 				{
 					Smod2.API.Player play = new ServerMod2.API.SmodPlayer(collider.gameObject);
 
-					if (SI_Config.si_classtransfer[ev.KnobSetting].ContainsKey((int)play.TeamRole.Role))
+					if (SI_Config.si_914handorinv == 1) // Don't know if passing the collider will work the way I want it to work so I'm just gonna pray to the unity gods for a bug free experience.
 					{
-						if (SI_Config.si_914handorinv == 1) // Don't know if passing the collider will work the way I want it to work so I'm just gonna pray to the unity gods for a bug free experience.
-						{
-							_914Manager.DoHand914(collider, ev.OutputPos, ev.KnobSetting, scp914);
-						}
-						else if( SI_Config.si_914handorinv == 2)
-						{
-							_914Manager.DoInventory914(collider, ev.OutputPos, ev.KnobSetting, scp914);
-						}
-						else
-						{
-							CheckSteamIDItemNum[play.SteamId].TransferItems(collider.gameObject);
-							CheckSteamIDItemNum[play.SteamId]._914Transfer = true;
-						}
+						_914Manager.DoHand914(collider, ev.OutputPos, ev.KnobSetting, scp914);
 					}
-					else
+					else if (SI_Config.si_914handorinv == 2)
 					{
-						if (SI_Config.si_914handorinv == 1) // Don't know if passing the collider will work the way I want it to work so I'm just gonna pray to the unity gods for a bug free experience.
-						{
-							_914Manager.DoHand914(collider, ev.OutputPos, ev.KnobSetting, scp914);
-						}
-						else if (SI_Config.si_914handorinv == 2)
-						{
-							_914Manager.DoInventory914(collider, ev.OutputPos, ev.KnobSetting, scp914);
-						}
+						_914Manager.DoInventory914(collider, ev.OutputPos, ev.KnobSetting, scp914);
+					}
+					else if (SI_Config.si_914handorinv == 0)
+					{
+						CheckSteamIDItemNum[play.SteamId].TransferItems(collider.gameObject);
+						CheckSteamIDItemNum[play.SteamId].ApplyTransferedItems(collider.gameObject);
 					}
 				}
 			}

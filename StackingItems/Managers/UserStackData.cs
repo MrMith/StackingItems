@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Smod2.API;
 using System;
+using System.Threading.Tasks;
 
 namespace StackingItems.Managers
 {
@@ -49,7 +50,6 @@ namespace StackingItems.Managers
 
 		public void TransferItems(UnityEngine.GameObject gameObject)
 		{
-
 			Smod2.API.Player playa = new ServerMod2.API.SmodPlayer(gameObject);
 
 			TempItemList.Clear();
@@ -64,6 +64,35 @@ namespace StackingItems.Managers
 			ammo5 = playa.GetAmmo(AmmoType.DROPPED_5);
 
 			checkItemTypeForNumOfItems.Clear();
+		}
+
+		public async void ApplyTransferedItems(UnityEngine.GameObject gameObject, bool clear = false)
+		{
+			await Task.Delay(250);
+			Smod2.API.Player playa = new ServerMod2.API.SmodPlayer(gameObject);
+			if (clear)
+			{
+				foreach (Smod2.API.Item item in playa.GetInventory())
+				{
+					item.Remove();
+				}
+			}
+
+			StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ResetToZero();
+			playa.SetAmmo(AmmoType.DROPPED_9, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo9 + playa.GetAmmo(AmmoType.DROPPED_9));
+			playa.SetAmmo(AmmoType.DROPPED_7, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo7 + playa.GetAmmo(AmmoType.DROPPED_7));
+			playa.SetAmmo(AmmoType.DROPPED_5, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo5 + playa.GetAmmo(AmmoType.DROPPED_5));
+			foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
+			{
+				if (StackEventHandler.CheckSteamIDItemNum[playa.SteamId].TempItemList.TryGetValue((int)item, out int value))
+				{
+					for (int i = 0; i < value; i++)
+					{
+						playa.GiveItem(item);
+					}
+				}
+			}
+			StackEventHandler.CheckSteamIDItemNum[playa.SteamId].TempItemList.Clear();
 		}
 	}
 }

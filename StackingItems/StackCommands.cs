@@ -1,6 +1,5 @@
 ﻿using Smod2.Commands;
 using Smod2;
-using UnityEngine;
 
 namespace StackingItems
 {

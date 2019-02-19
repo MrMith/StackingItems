@@ -29,6 +29,8 @@ namespace StackingItems.Managers
 
 			if (play.GetCurrentItem() == null || play.GetCurrentItemIndex() == -1 || play.GetCurrentItem().ItemType == ItemType.USP || stackManager.ContainsWeapon((int)play.GetCurrentItem().ItemType) && knobSetting == KnobSetting.ONE_TO_ONE)
 			{
+				StackEventHandler.CheckSteamIDItemNum[play.SteamId].TransferItems(collider.gameObject);
+				StackEventHandler.CheckSteamIDItemNum[play.SteamId].ApplyTransferedItems(collider.gameObject, true);
 				return;
 			}
 			Smod2.API.ItemType currentItem = play.GetCurrentItem().ItemType;
@@ -55,13 +57,12 @@ namespace StackingItems.Managers
 					}
 				}
 			}
-
 			play.GetCurrentItem().Remove();
-
 			int AmountOfItems = -1;
 			if (TempGetItemsByItemType[(int)currentItem].Count == itemIndex)
 			{
 				AmountOfItems = (int)Math.Ceiling(StackEventHandler.CheckSteamIDItemNum[play.SteamId].GetItemAmount((int)currentItem) % (float)stackManager.GetStackSize((int)currentItem));
+				if (AmountOfItems == 0) AmountOfItems = stackManager.GetStackSize((int)currentItem);
 			}
 			else
 			{
@@ -71,6 +72,7 @@ namespace StackingItems.Managers
 			if (stackManager.GetStackSize((int)currentItem) == 1) AmountOfItems = 1;
 
 			StackEventHandler.CheckSteamIDItemNum[play.SteamId].AddItemAmount((int)currentItem, AmountOfItems * -1);
+
 			for (int i = 0; i < AmountOfItems; i++)
 			{
 				int newitem = GetRandom914ItemByKnob(scp914, (int)currentItem, (int)knobSetting);
@@ -88,16 +90,16 @@ namespace StackingItems.Managers
 			}
 
 			StackEventHandler.CheckSteamIDItemNum[play.SteamId].TransferItems(collider.gameObject);
-			StackEventHandler.CheckSteamIDItemNum[play.SteamId]._914Transfer = true;
+			StackEventHandler.CheckSteamIDItemNum[play.SteamId].ApplyTransferedItems(collider.gameObject, true);
 		}
 
 		/// <summary>
-		/// Does a full 914 pass on each item in the user's inventory.
+		/// Does a pass on every item in the user's inventory
 		/// </summary>
-		/// <param name="collider">Player</param>
-		/// <param name="OutputPos">Smod2 Vector on the output of 914</param>
-		/// <param name="knobSetting">Current 914 knob setting</param>
-		/// <param name="scp914">914</param>
+		/// <param name="collider">player collider</param>
+		/// <param name="OutputPos">smod2 vector of output pos of 914</param>
+		/// <param name="knobSetting">current knobsetting of 914</param>
+		/// <param name="scp914">scp914</param>
 		public void DoInventory914(UnityEngine.Collider collider, Vector OutputPos, KnobSetting knobSetting, Scp914 scp914)
 		{
 			Smod2.API.Player play = new ServerMod2.API.SmodPlayer(collider.gameObject);
@@ -154,8 +156,9 @@ namespace StackingItems.Managers
 					}
 				}
 			}
+
 			StackEventHandler.CheckSteamIDItemNum[play.SteamId].TransferItems(collider.gameObject);
-			StackEventHandler.CheckSteamIDItemNum[play.SteamId]._914Transfer = true;
+			StackEventHandler.CheckSteamIDItemNum[play.SteamId].ApplyTransferedItems(collider.gameObject);
 		}
 		
 		/// <summary>
