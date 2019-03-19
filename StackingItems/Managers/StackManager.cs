@@ -69,7 +69,7 @@ namespace StackingItems.Managers
 
 		public bool ContainsWeapon(int weaponID)
 		{
-			int[] weaponList = { 13, 16, 20, 21, 23, 24, 30 };
+			int[] weaponList = { 13, 16, 19, 20, 21, 23, 24, 30 };
 			if (weaponList.Contains(weaponID))
 			{
 				return true;

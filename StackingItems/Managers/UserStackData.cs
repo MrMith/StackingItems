@@ -15,7 +15,6 @@ namespace StackingItems.Managers
 			ammo5 = 0;
 
 		public bool fixUse = false;
-		public bool fixthrowGrenade = false;
 		public bool Escape = false;
 		public bool _914Transfer = false;
 

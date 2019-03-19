@@ -58,13 +58,6 @@ namespace StackingItems
 			else
 			{
 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
-				foreach (Smod2.API.Item item in ev.Player.GetInventory())
-				{
-					if (ev.Item != item)
-					{
-						CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
-					}
-				}
 			}
 		}
 		#endregion
@@ -75,31 +68,27 @@ namespace StackingItems
 		/// </summary>
 		public void OnPlayerPickupItemLate(PlayerPickupItemLateEvent ev)
 		{
+			if (ev.Item.ToString().ToLower().Contains("dropped") || stackManager.ContainsWeapon((int)ev.Item.ItemType)) return;
+
 			if (!CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
-				foreach (Smod2.API.Item item in ev.Player.GetInventory())
-				{
-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
-				}
 			}
 
 			if (ev.Item.ItemType == ItemType.FRAG_GRENADE || ev.Item.ItemType == ItemType.FLASHBANG || ev.Item.ItemType == ItemType.MEDKIT)
 			{
-				if (CheckSteamIDItemNum[ev.Player.SteamId].fixUse || CheckSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade)
+				if (CheckSteamIDItemNum[ev.Player.SteamId].fixUse)
 				{
 					return;
 				}
 			}
 
-			if (!ev.Item.ToString().ToLower().Contains("dropped"))
+			CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
+			int ItemAmount = CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
+
+			if (ItemAmount % stackManager.GetStackSize((int)ev.Item.ItemType) != 1 && stackManager.GetStackSize((int)ev.Item.ItemType) >= 2)
 			{
-				CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
-				int ItemAmount = CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
-				if (ItemAmount % stackManager.GetStackSize((int)ev.Item.ItemType) != 1 && !stackManager.ContainsWeapon((int)ev.Item.ItemType) &&stackManager.GetStackSize((int)ev.Item.ItemType) >= 2)
-				{
-					ev.Item.Remove();
-				}
+				ev.Item.Remove();
 			}
 		}
 		#endregion
@@ -117,19 +106,15 @@ namespace StackingItems
 					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.GrenadeType, -1);
 					if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) % stackManager.GetStackSize((int)ev.GrenadeType) != 0)
 					{
-						CheckSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade = true;
+						CheckSteamIDItemNum[ev.Player.SteamId].fixUse = true;
 						ev.Player.GiveItem(ev.GrenadeType);
-						CheckSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade = false; //Looks ugly but is needed so it doesn't add one to my stacking system.
+						CheckSteamIDItemNum[ev.Player.SteamId].fixUse = false; //Looks ugly but is needed so it doesn't add one to my stacking system.
 					}
 				}
 			}
 			else
 			{
 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
-				foreach (Smod2.API.Item item in ev.Player.GetInventory())
-				{
-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
-				}
 			}
 		}
 		#endregion
@@ -156,10 +141,6 @@ namespace StackingItems
 			else
 			{
 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
-				foreach (Smod2.API.Item item in ev.Player.GetInventory())
-				{
-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
-				}
 			}
 		}
 		#endregion
@@ -204,22 +185,6 @@ namespace StackingItems
 			SI_Config.SetConfigOptions();
 			stackManager.SetStackSize();
 			_914Manager.SetUp(SI_Config, stackManager);
-
-			foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())
-			{
-				if (CheckSteamIDItemNum.ContainsKey(playa.SteamId))
-				{
-					CheckSteamIDItemNum[playa.SteamId].ResetToZero();
-				}
-				else
-				{
-					CheckSteamIDItemNum[playa.SteamId] = new UserStackData();
-					foreach (Smod2.API.Item item in playa.GetInventory())
-					{
-						CheckSteamIDItemNum[playa.SteamId].AddItemAmount((int)item.ItemType, 1);
-					}
-				}
-			}
 		}
 		#endregion
 
@@ -244,10 +209,6 @@ namespace StackingItems
 			else
 			{
 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
-				foreach (Smod2.API.Item item in ev.Player.GetInventory())
-				{
-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);
-				}
 			}
 		}
 

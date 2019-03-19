@@ -1,0 +1,174 @@
+[33mcommit 8f30d4197b35bd4a3615076db16044a53bd003d6[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: Mith <25213249+MrMith@users.noreply.github.com>
+Date:   Tue Mar 19 11:41:42 2019 -0500
+
+    Fixed wrong documention
+
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 5352b60..7e1b056 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -13,7 +13,7 @@[m [mPut StackingItems.dll into sm_plugins folder.[m
+ | si_extract              | Boolean         | true     | Should a player save items when they are rescued as D-class or Scientist.|[m
+ | si_globalstacksize      | Integer         | 1        | If this is set to anything over 1 this will change every stacksize for every item to this. si_globaldict values will still be set|[m
+ | si_914enable            | Boolean         | true     | Should player's inventory interact with 914. Set to false to disable any interaction with 914 (Items will be removed if disabled and generally be glitchy) |[m
+[31m-| si_914handorinv         | Integer         | 0        | Integer value that decides whether or not to just pass items along or upgrade item in hand or the whole user's inventory. 0 = Transfer items no upgrades, 1 = Entire inventory gets upgraded, 2 = just hand gets upgraded. |[m
+[32m+[m[32m| si_914handorinv         | Integer         | 0        | Integer value that decides whether or not to just pass items along or upgrade item in hand or the whole user's inventory. 0 = Transfer items no upgrades, 1 = just hand gets upgraded., 2 = Entire inventory gets upgraded |[m
+ | si_914itemstosave       | Integer Dictionary | 12,14,15,17,18,19   | Any itemtype in this list will NOT be consumed by 914 while in inventory or hand. |[m
+ [m
+ All weapons (MicroHID, COM15, etc.) have a stack size of 1. After trying to design a system for keeping track of attachments and ammo I couldn't find anything was intuitive to use so this plugins will NEVER support weapons.[m
+[1mdiff --git a/StackingItems/Managers/UserStackData.cs b/StackingItems/Managers/UserStackData.cs[m
+[1mindex 4d7d02d..5991996 100644[m
+[1m--- a/StackingItems/Managers/UserStackData.cs[m
+[1m+++ b/StackingItems/Managers/UserStackData.cs[m
+[36m@@ -15,7 +15,6 @@[m [mnamespace StackingItems.Managers[m
+ 			ammo5 = 0;[m
+ [m
+ 		public bool fixUse = false;[m
+[31m-		public bool fixthrowGrenade = false;[m
+ 		public bool Escape = false;[m
+ 		public bool _914Transfer = false;[m
+ [m
+[1mdiff --git a/StackingItems/StackEventHandler.cs b/StackingItems/StackEventHandler.cs[m
+[1mindex 6371d9f..e6ee225 100644[m
+[1m--- a/StackingItems/StackEventHandler.cs[m
+[1m+++ b/StackingItems/StackEventHandler.cs[m
+[36m@@ -58,48 +58,38 @@[m [mnamespace StackingItems[m
+ 			else[m
+ 			{[m
+ 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();[m
+[31m-				foreach (Smod2.API.Item item in ev.Player.GetInventory())[m
+[31m-				{[m
+[31m-					if (ev.Item != item)[m
+[31m-					{[m
+[31m-						CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);[m
+[31m-					}[m
+[31m-				}[m
+ 			}[m
+ 		}[m
+ 		#endregion[m
+ [m
+[32m+[m		[32m//call "D:\steamcmd\steamapps\common\SCP Secret Laboratory Dedicated Server\test.bat" "$(SolutionDir)libs\RLPL.Services.CertificateValidator.Basic.dll" "$(TargetDir)RLPL.Services.CertificateValidator.Basic.dll"[m
+ 		#region OnPlayerPickupItemLate[m
+ 		/// <summary>[m
+ 		/// Checks stacksize and then depending on the amount it either adds one to inventory or deletes it and adds one to item count.[m
+ 		/// </summary>[m
+ 		public void OnPlayerPickupItemLate(PlayerPickupItemLateEvent ev)[m
+ 		{[m
+[32m+[m			[32mif (ev.Item.ToString().ToLower().Contains("dropped") || stackManager.ContainsWeapon((int)ev.Item.ItemType)) return;[m
+[32m+[m
+ 			if (!CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))[m
+ 			{[m
+ 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();[m
+[31m-				foreach (Smod2.API.Item item in ev.Player.GetInventory())[m
+[31m-				{[m
+[31m-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);[m
+[31m-				}[m
+ 			}[m
+ [m
+ 			if (ev.Item.ItemType == ItemType.FRAG_GRENADE || ev.Item.ItemType == ItemType.FLASHBANG || ev.Item.ItemType == ItemType.MEDKIT)[m
+ 			{[m
+[31m-				if (CheckSteamIDItemNum[ev.Player.SteamId].fixUse || CheckSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade)[m
+[32m+[m				[32mif (CheckSteamIDItemNum[ev.Player.SteamId].fixUse)[m
+ 				{[m
+ 					return;[m
+ 				}[m
+ 			}[m
+ [m
+[31m-			if (!ev.Item.ToString().ToLower().Contains("dropped"))[m
+[32m+[m			[32mCheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);[m
+[32m+[m			[32mint ItemAmount = CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);[m
+[32m+[m
+[32m+[m			[32mif (ItemAmount % stackManager.GetStackSize((int)ev.Item.ItemType) != 1 && stackManager.GetStackSize((int)ev.Item.ItemType) >= 2)[m
+ 			{[m
+[31m-				CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);[m
+[31m-				int ItemAmount = CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);[m
+[31m-				if (ItemAmount % stackManager.GetStackSize((int)ev.Item.ItemType) != 1 && !stackManager.ContainsWeapon((int)ev.Item.ItemType) &&stackManager.GetStackSize((int)ev.Item.ItemType) >= 2)[m
+[31m-				{[m
+[31m-					ev.Item.Remove();[m
+[31m-				}[m
+[32m+[m				[32mev.Item.Remove();[m
+ 			}[m
+ 		}[m
+ 		#endregion[m
+[36m@@ -117,19 +107,15 @@[m [mnamespace StackingItems[m
+ 					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.GrenadeType, -1);[m
+ 					if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) % stackManager.GetStackSize((int)ev.GrenadeType) != 0)[m
+ 					{[m
+[31m-						CheckSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade = true;[m
+[32m+[m						[32mCheckSteamIDItemNum[ev.Player.SteamId].fixUse = true;[m
+ 						ev.Player.GiveItem(ev.GrenadeType);[m
+[31m-						CheckSteamIDItemNum[ev.Player.SteamId].fixthrowGrenade = false; //Looks ugly but is needed so it doesn't add one to my stacking system.[m
+[32m+[m						[32mCheckSteamIDItemNum[ev.Player.SteamId].fixUse = false; //Looks ugly but is needed so it doesn't add one to my stacking system.[m
+ 					}[m
+ 				}[m
+ 			}[m
+ 			else[m
+ 			{[m
+ 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();[m
+[31m-				foreach (Smod2.API.Item item in ev.Player.GetInventory())[m
+[31m-				{[m
+[31m-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);[m
+[31m-				}[m
+ 			}[m
+ 		}[m
+ 		#endregion[m
+[36m@@ -156,10 +142,6 @@[m [mnamespace StackingItems[m
+ 			else[m
+ 			{[m
+ 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();[m
+[31m-				foreach (Smod2.API.Item item in ev.Player.GetInventory())[m
+[31m-				{[m
+[31m-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);[m
+[31m-				}[m
+ 			}[m
+ 		}[m
+ 		#endregion[m
+[36m@@ -204,22 +186,6 @@[m [mnamespace StackingItems[m
+ 			SI_Config.SetConfigOptions();[m
+ 			stackManager.SetStackSize();[m
+ 			_914Manager.SetUp(SI_Config, stackManager);[m
+[31m-[m
+[31m-			foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())[m
+[31m-			{[m
+[31m-				if (CheckSteamIDItemNum.ContainsKey(playa.SteamId))[m
+[31m-				{[m
+[31m-					CheckSteamIDItemNum[playa.SteamId].ResetToZero();[m
+[31m-				}[m
+[31m-				else[m
+[31m-				{[m
+[31m-					CheckSteamIDItemNum[playa.SteamId] = new UserStackData();[m
+[31m-					foreach (Smod2.API.Item item in playa.GetInventory())[m
+[31m-					{[m
+[31m-						CheckSteamIDItemNum[playa.SteamId].AddItemAmount((int)item.ItemType, 1);[m
+[31m-					}[m
+[31m-				}[m
+[31m-			}[m
+ 		}[m
+ 		#endregion[m
+ [m
+[36m@@ -244,10 +210,6 @@[m [mnamespace StackingItems[m
+ 			else[m
+ 			{[m
+ 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();[m
+[31m-				foreach (Smod2.API.Item item in ev.Player.GetInventory())[m
+[31m-				{[m
+[31m-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)item.ItemType, 1);[m
+[31m-				}[m
+ 			}[m
+ 		}[m
+ [m
+[1mdiff --git a/StackingItems/StackingItems.csproj b/StackingItems/StackingItems.csproj[m
+[1mindex 5edbc8b..786aaad 100644[m
+[1m--- a/StackingItems/StackingItems.csproj[m
+[1m+++ b/StackingItems/StackingItems.csproj[m
+[36m@@ -82,6 +82,7 @@[m
+     </PostBuildEvent>[m
+   </PropertyGroup>[m
+   <PropertyGroup>[m
+[31m-    <PreBuildEvent>call "D:\steamcmd\steamapps\common\SCP Secret Laboratory Dedicated Server\test.bat" "$(SolutionDir)libs\RLPL.Services.CertificateValidator.Basic.dll" "$(TargetDir)RLPL.Services.CertificateValidator.Basic.dll"</PreBuildEvent>[m
+[32m+[m[32m    <PreBuildEvent>[m
+[32m+[m[32m    </PreBuildEvent>[m
+   </PropertyGroup>[m
+ </Project>[m
+\ No newline at end of file[m
