@@ -36,7 +36,6 @@ namespace StackingItems.Managers
 					{
 						checkItemForItemStack[(int)type] = globalstacksize;
 					}
-					
 				}
 				foreach (KeyValuePair<int, int> item in StackMain.plugin.GetConfigIntDict("si_globaldict"))
 				{
@@ -48,7 +47,6 @@ namespace StackingItems.Managers
 					{
 						checkItemForItemStack[item.Key] = item.Value;
 					}
-					
 				}
 			}
 			else

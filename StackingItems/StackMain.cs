@@ -9,7 +9,7 @@ namespace StackingItems
 		name = "StackingItems",
 		description = "Items stack to save inventory space.",
 		id = "mith.StackingItems",
-		version = "1.1.3",
+		version = "1.1.4",
 		SmodMajor = 3,
 		SmodMinor = 4,
 		SmodRevision = 0

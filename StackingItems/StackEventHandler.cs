@@ -68,7 +68,7 @@ namespace StackingItems
 		/// </summary>
 		public void OnPlayerPickupItemLate(PlayerPickupItemLateEvent ev)
 		{
-			if (ev.Item.ToString().ToLower().Contains("dropped") || stackManager.ContainsWeapon((int)ev.Item.ItemType)) return;
+			if (ev.Item.ToString().ToLower().Contains("dropped")) return;
 
 			if (!CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
@@ -84,6 +84,7 @@ namespace StackingItems
 			}
 
 			CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.Item.ItemType, 1);
+			if (stackManager.ContainsWeapon((int)ev.Item.ItemType)) return;
 			int ItemAmount = CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.Item.ItemType);
 
 			if (ItemAmount % stackManager.GetStackSize((int)ev.Item.ItemType) != 1 && stackManager.GetStackSize((int)ev.Item.ItemType) >= 2)
@@ -295,7 +296,7 @@ namespace StackingItems
 					else if (SI_Config.si_914handorinv == 0)
 					{
 						CheckSteamIDItemNum[play.SteamId].TransferItems(collider.gameObject);
-						CheckSteamIDItemNum[play.SteamId].ApplyTransferedItems(collider.gameObject);
+						CheckSteamIDItemNum[play.SteamId].ApplyTransferedItems(collider.gameObject,true);
 					}
 				}
 			}
