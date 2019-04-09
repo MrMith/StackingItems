@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace StackingItems
 {
-	internal class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItemLate, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerRoundStart, IEventHandlerSetRole, IEventHandlerCheckEscape, IEventHandlerUpdate, IEventHandlerSCP914Activate
+	internal class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItemLate, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerSetRole, IEventHandlerCheckEscape, IEventHandlerUpdate, IEventHandlerSCP914Activate, IEventHandlerWaitingForPlayers
 	{
 		private readonly Plugin plugin;
 
@@ -100,22 +100,20 @@ namespace StackingItems
 		/// </summary>
 		public void OnThrowGrenade(PlayerThrowGrenadeEvent ev)
 		{
-			if (CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
-			{
-				if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) >= 1)
-				{
-					CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.GrenadeType, -1);
-					if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) % stackManager.GetStackSize((int)ev.GrenadeType) != 0)
-					{
-						CheckSteamIDItemNum[ev.Player.SteamId].fixUse = true;
-						ev.Player.GiveItem(ev.GrenadeType);
-						CheckSteamIDItemNum[ev.Player.SteamId].fixUse = false; //Looks ugly but is needed so it doesn't add one to my stacking system.
-					}
-				}
-			}
-			else
+			if (!CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
+			}
+
+			if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) >= 1)
+			{
+				CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount((int)ev.GrenadeType, -1);
+				if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)ev.GrenadeType) % stackManager.GetStackSize((int)ev.GrenadeType) != 0)
+				{
+					CheckSteamIDItemNum[ev.Player.SteamId].fixUse = true;
+					ev.Player.GiveItem(ev.GrenadeType);
+					CheckSteamIDItemNum[ev.Player.SteamId].fixUse = false; //Looks ugly but is needed so it doesn't add one to my stacking system.
+				}
 			}
 		}
 		#endregion
@@ -171,11 +169,11 @@ namespace StackingItems
 		}
 		#endregion
 
-		#region OnRoundStart
+		#region OnWaitingForPlayers
 		/// <summary>
 		/// Sets all configs.
 		/// </summary>
-		public void OnRoundStart(RoundStartEvent ev)
+		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
 			if (plugin.GetConfigBool("si_disable"))
 			{
@@ -187,6 +185,7 @@ namespace StackingItems
 			stackManager.SetStackSize();
 			_914Manager.SetUp(SI_Config, stackManager);
 		}
+
 		#endregion
 
 		#region OnSetRole

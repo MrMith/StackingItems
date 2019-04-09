@@ -78,9 +78,14 @@ namespace StackingItems.Managers
 			}
 
 			StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ResetToZero();
-			playa.SetAmmo(AmmoType.DROPPED_9, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo9 + playa.GetAmmo(AmmoType.DROPPED_9));
-			playa.SetAmmo(AmmoType.DROPPED_7, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo7 + playa.GetAmmo(AmmoType.DROPPED_7));
-			playa.SetAmmo(AmmoType.DROPPED_5, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo5 + playa.GetAmmo(AmmoType.DROPPED_5));
+
+			if(Escape)
+			{
+				playa.SetAmmo(AmmoType.DROPPED_9, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo9 + playa.GetAmmo(AmmoType.DROPPED_9));
+				playa.SetAmmo(AmmoType.DROPPED_7, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo7 + playa.GetAmmo(AmmoType.DROPPED_7));
+				playa.SetAmmo(AmmoType.DROPPED_5, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo5 + playa.GetAmmo(AmmoType.DROPPED_5));
+			}
+			
 			foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 			{
 				if (StackEventHandler.CheckSteamIDItemNum[playa.SteamId].TempItemList.TryGetValue((int)item, out int value))
