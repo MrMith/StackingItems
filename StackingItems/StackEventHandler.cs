@@ -92,50 +92,50 @@ namespace StackingItems
 				ev.Item.Remove();
 			}
 		}
-        #endregion
+		#endregion
 
-        #region OnThrowGrenade
-        /// <summary>
-        /// If a player has more grenades in their item count it gives them one and if not it just allows it to pass normally.
-        /// </summary>
-        public void OnThrowGrenade(PlayerThrowGrenadeEvent ev)
-        {
-            if (!CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
-            {
-                CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
-            }
+		#region OnThrowGrenade
+		/// <summary>
+		/// If a player has more grenades in their item count it gives them one and if not it just allows it to pass normally.
+		/// </summary>
+		public void OnThrowGrenade(PlayerThrowGrenadeEvent ev)
+		{
+			if (!CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
+			{
+				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
+			}
 
-            int GrenadeTypeToUse = -1;
+			int GrenadeTypeToUse = -1;
 
-            if (ev.GrenadeType == GrenadeType.FLASHBANG)
-            {
-                GrenadeTypeToUse = (int)ItemType.FLASHBANG;
-            }
-            else if (ev.GrenadeType == GrenadeType.FRAG_GRENADE)
-            {
-                GrenadeTypeToUse = (int)ItemType.FRAG_GRENADE;
-            }
+			if (ev.GrenadeType == GrenadeType.FLASHBANG)
+			{
+				GrenadeTypeToUse = (int)ItemType.FLASHBANG;
+			}
+			else if (ev.GrenadeType == GrenadeType.FRAG_GRENADE)
+			{
+				GrenadeTypeToUse = (int)ItemType.FRAG_GRENADE;
+			}
 
-            if (GrenadeTypeToUse == -1) return;
+			if (GrenadeTypeToUse == -1) return;
 
-            if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount(GrenadeTypeToUse) >= 1)
-            {
-                CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount(GrenadeTypeToUse, -1);
-                if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount(GrenadeTypeToUse) % stackManager.GetStackSize(GrenadeTypeToUse) != 0)
-                {
-                    CheckSteamIDItemNum[ev.Player.SteamId].fixUse = true;
-                    ev.Player.GiveItem((ItemType)GrenadeTypeToUse);
-                    CheckSteamIDItemNum[ev.Player.SteamId].fixUse = false; //Looks ugly but is needed so it doesn't add one to my stacking system.
-                }
-            }
-        }
-        #endregion
+			if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount(GrenadeTypeToUse) >= 1)
+			{
+				CheckSteamIDItemNum[ev.Player.SteamId].AddItemAmount(GrenadeTypeToUse, -1);
+				if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount(GrenadeTypeToUse) % stackManager.GetStackSize(GrenadeTypeToUse) != 0)
+				{
+					CheckSteamIDItemNum[ev.Player.SteamId].fixUse = true;
+					ev.Player.GiveItem((ItemType)GrenadeTypeToUse);
+					CheckSteamIDItemNum[ev.Player.SteamId].fixUse = false; //Looks ugly but is needed so it doesn't add one to my stacking system.
+				}
+			}
+		}
+		#endregion
 
-        #region OnMedkitUse
-        /// <summary>
-        /// If a player has more medkits in their item count it gives them one and if not it just allows it to pass normally.
-        /// </summary>
-        public void OnMedkitUse(PlayerMedkitUseEvent ev)
+		#region OnMedkitUse
+		/// <summary>
+		/// If a player has more medkits in their item count it gives them one and if not it just allows it to pass normally.
+		/// </summary>
+		public void OnMedkitUse(PlayerMedkitUseEvent ev)
 		{
 			if (CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
