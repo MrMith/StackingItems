@@ -1,5 +1,8 @@
 # StackingItems
 This is a server plugin for [SCP:SL.](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory)
+This allows multiples of the same item to occupy the same slot.
+This has plugin makes it to when you extract you keep your items and ammo (anything over the 8th slot is spawned on the ground) 
+This plugin also has its own 914 system that IS NOT compatible with 914-held-items.
 ## Install Instructions.
 Put StackingItems.dll into sm_plugins folder.
 
