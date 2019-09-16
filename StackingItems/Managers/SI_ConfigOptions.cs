@@ -17,9 +17,9 @@ namespace StackingItems.Managers
 			Stack_KeycardOverride = StackMain.plugin.GetConfigInt("si_override_keycard");
 			keepItemsOnExtract = StackMain.plugin.GetConfigBool("si_extract");
 			globalstacksize = StackMain.plugin.GetConfigInt("si_globalstacksize");
-			si_914enable = StackMain.plugin.GetConfigBool("si_914enable");
-			si_914handorinv = StackMain.plugin.GetConfigInt("si_914handorinv");
-			si_914itemstosave = StackMain.plugin.GetConfigIntList("si_914itemstosave");
+			si_914enable = StackMain.plugin.GetConfigBool("si_enable914");
+			si_914handorinv = StackMain.plugin.GetConfigInt("si_handorinv914");
+			si_914itemstosave = StackMain.plugin.GetConfigIntList("si_itemstosave914");
 		}
 	}
 }

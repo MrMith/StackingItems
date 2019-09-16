@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace StackingItems
 {
-	internal class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItemLate, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerSetRole, IEventHandlerCheckEscape, IEventHandlerUpdate, IEventHandlerSCP914Activate, IEventHandlerWaitingForPlayers
+	internal class StackEventHandler : IEventHandlerMedkitUse, IEventHandlerPlayerPickupItemLate, IEventHandlerThrowGrenade, IEventHandlerPlayerDropItem, IEventHandlerPlayerDie, IEventHandlerSetRole, IEventHandlerCheckEscape, IEventHandlerSCP914Activate, IEventHandlerWaitingForPlayers, IEventHandlerPlayerDropAllItems
 	{
 		private readonly Plugin plugin;
 
@@ -23,17 +23,12 @@ namespace StackingItems
 
 		public static Dictionary<string, UserStackData> CheckSteamIDItemNum = new Dictionary<string, UserStackData>();
 
-		DateTime timeOnEvent = DateTime.Now;
-
 		public StackEventHandler(Plugin plugin)
 		{
 			this.plugin = plugin;
 		}
 
 		#region OnPlayerDropItem
-		/// <summary>
-		/// Checks stacksize and then depending on the amount it either drops a item from your inventory or spawns one and removes one from the players count.
-		/// </summary>
 		public void OnPlayerDropItem(PlayerDropItemEvent ev)
 		{
 			if (CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
@@ -63,12 +58,9 @@ namespace StackingItems
 		#endregion
 
 		#region OnPlayerPickupItemLate
-		/// <summary>
-		/// Checks stacksize and then depending on the amount it either adds one to inventory or deletes it and adds one to item count.
-		/// </summary>
 		public void OnPlayerPickupItemLate(PlayerPickupItemLateEvent ev)
 		{
-			if (ev.Item.ToString().ToLower().Contains("dropped")) return;
+			if (ev.Item.ItemType == ItemType.DROPPED_5 || ev.Item.ItemType == ItemType.DROPPED_7 || ev.Item.ItemType == ItemType.DROPPED_9) return;
 
 			if (!CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
 			{
@@ -95,9 +87,6 @@ namespace StackingItems
 		#endregion
 
 		#region OnThrowGrenade
-		/// <summary>
-		/// If a player has more grenades in their item count it gives them one and if not it just allows it to pass normally.
-		/// </summary>
 		public void OnThrowGrenade(PlayerThrowGrenadeEvent ev)
 		{
 			if (!CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
@@ -132,9 +121,6 @@ namespace StackingItems
 		#endregion
 
 		#region OnMedkitUse
-		/// <summary>
-		/// If a player has more medkits in their item count it gives them one and if not it just allows it to pass normally.
-		/// </summary>
 		public void OnMedkitUse(PlayerMedkitUseEvent ev)
 		{
 			if (CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
@@ -158,9 +144,6 @@ namespace StackingItems
 		#endregion
 
 		#region OnPlayerDie
-		/// <summary>
-		/// When someone dies it drops all of their items in their itemcount.
-		/// </summary>
 		public void OnPlayerDie(PlayerDeathEvent ev)
 		{
 			if (CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
@@ -183,9 +166,6 @@ namespace StackingItems
 		#endregion
 
 		#region OnWaitingForPlayers
-		/// <summary>
-		/// Sets all configs.
-		/// </summary>
 		public void OnWaitingForPlayers(WaitingForPlayersEvent ev)
 		{
 			if (plugin.GetConfigBool("si_disable"))
@@ -198,13 +178,9 @@ namespace StackingItems
 			stackManager.SetStackSize();
 			_914Manager.SetUp(SI_Config, stackManager);
 		}
-
 		#endregion
 
 		#region OnSetRole
-		/// <summary>
-		/// When someone is a different role it clears their stacks unless they have escaped.
-		/// </summary>
 		public void OnSetRole(PlayerSetRoleEvent ev)
 		{
 			if (CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
@@ -224,46 +200,9 @@ namespace StackingItems
 				CheckSteamIDItemNum[ev.Player.SteamId] = new UserStackData();
 			}
 		}
-
-		#endregion
-
-		#region OnUpdate
-		/// <summary>
-		/// Checks every second to see if someone is handcuffed and if so they drop all of their items like if they've died.
-		/// </summary>
-		public void OnUpdate(UpdateEvent ev) // OnHandCuffed is broke >:(
-		{
-			if (DateTime.Now >= timeOnEvent)
-			{
-				timeOnEvent = DateTime.Now.AddSeconds(1.0);
-				{
-					foreach (Player playa in Smod2.PluginManager.Manager.Server.GetPlayers())
-					{
-						if (CheckSteamIDItemNum.ContainsKey(playa.SteamId) && playa.IsHandcuffed())
-						{
-							foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
-							{
-								if (CheckSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) != -1)
-								{
-									for (int i = 0; i < (CheckSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) - Math.Ceiling(CheckSteamIDItemNum[playa.SteamId].GetItemAmount((int)item) / (float)stackManager.GetStackSize((int)item))); i++)
-									{
-										Smod2.PluginManager.Manager.Server.Map.SpawnItem(item, playa.GetPosition(), new Vector(0, 0, 0));
-									}
-								}
-							}
-							CheckSteamIDItemNum[playa.SteamId].ResetToZero();
-						}
-					}
-				}
-			}
-
-		}
 		#endregion
 
 		#region OnCheckEscape
-		/// <summary>
-		/// Checks if they have escaped to transfer item stacks and ammo over.
-		/// </summary>
 		public void OnCheckEscape(PlayerCheckEscapeEvent ev)
 		{
 			if (CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId) && SI_Config.keepItemsOnExtract)
@@ -311,6 +250,25 @@ namespace StackingItems
 						CheckSteamIDItemNum[play.SteamId].ApplyTransferedItems(collider.gameObject,true);
 					}
 				}
+			}
+		}
+		#endregion
+		#region  OnPlayerDropAllItems
+		public void OnPlayerDropAllItems(PlayerDropAllItemsEvent ev)
+		{
+			if (CheckSteamIDItemNum.ContainsKey(ev.Player.SteamId))
+			{
+				foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
+				{
+					if (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) != -1)
+					{
+						for (int i = 0; i < (CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) - Math.Ceiling(CheckSteamIDItemNum[ev.Player.SteamId].GetItemAmount((int)item) / (float)stackManager.GetStackSize((int)item))); i++)
+						{
+							Smod2.PluginManager.Manager.Server.Map.SpawnItem(item, ev.Player.GetPosition(), new Vector(0, 0, 0));
+						}
+					}
+				}
+				CheckSteamIDItemNum[ev.Player.SteamId].ResetToZero();
 			}
 		}
 		#endregion

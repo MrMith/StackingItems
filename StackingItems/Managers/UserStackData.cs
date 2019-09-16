@@ -23,6 +23,11 @@ namespace StackingItems.Managers
 			checkItemTypeForNumOfItems.Clear();
 		}
 
+        public void SetItemAmount(int ItemType, int Amount)
+        {
+            checkItemTypeForNumOfItems[ItemType] = Amount;
+        }
+
 		public int GetItemAmount(int ItemType)
 		{
 			if (checkItemTypeForNumOfItems.TryGetValue(ItemType, out int value))
@@ -49,7 +54,7 @@ namespace StackingItems.Managers
 
 		public void TransferItems(UnityEngine.GameObject gameObject)
 		{
-			Smod2.API.Player playa = new ServerMod2.API.SmodPlayer(gameObject);
+			Smod2.API.Player player = new ServerMod2.API.SmodPlayer(gameObject);
 
 			TempItemList.Clear();
 
@@ -58,9 +63,9 @@ namespace StackingItems.Managers
 				TempItemList[keyValuePair.Key] = keyValuePair.Value;
 			}
 
-			ammo9 = playa.GetAmmo(AmmoType.DROPPED_9);
-			ammo7 = playa.GetAmmo(AmmoType.DROPPED_7);
-			ammo5 = playa.GetAmmo(AmmoType.DROPPED_5);
+			ammo9 = player.GetAmmo(AmmoType.DROPPED_9);
+			ammo7 = player.GetAmmo(AmmoType.DROPPED_7);
+			ammo5 = player.GetAmmo(AmmoType.DROPPED_5);
 
 			checkItemTypeForNumOfItems.Clear();
 		}
@@ -68,35 +73,35 @@ namespace StackingItems.Managers
 		public async void ApplyTransferedItems(UnityEngine.GameObject gameObject, bool clear = false)
 		{
 			await Task.Delay(250);
-			Smod2.API.Player playa = new ServerMod2.API.SmodPlayer(gameObject);
+			Smod2.API.Player player = new ServerMod2.API.SmodPlayer(gameObject);
 			if (clear)
 			{
-				foreach (Smod2.API.Item item in playa.GetInventory())
+				foreach (Smod2.API.Item item in player.GetInventory())
 				{
 					item.Remove();
 				}
 			}
 
-			StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ResetToZero();
+			StackEventHandler.CheckSteamIDItemNum[player.SteamId].ResetToZero();
 
 			if(Escape)
 			{
-				playa.SetAmmo(AmmoType.DROPPED_9, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo9 + playa.GetAmmo(AmmoType.DROPPED_9));
-				playa.SetAmmo(AmmoType.DROPPED_7, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo7 + playa.GetAmmo(AmmoType.DROPPED_7));
-				playa.SetAmmo(AmmoType.DROPPED_5, StackEventHandler.CheckSteamIDItemNum[playa.SteamId].ammo5 + playa.GetAmmo(AmmoType.DROPPED_5));
+				player.SetAmmo(AmmoType.DROPPED_9, StackEventHandler.CheckSteamIDItemNum[player.SteamId].ammo9 + player.GetAmmo(AmmoType.DROPPED_9));
+				player.SetAmmo(AmmoType.DROPPED_7, StackEventHandler.CheckSteamIDItemNum[player.SteamId].ammo7 + player.GetAmmo(AmmoType.DROPPED_7));
+				player.SetAmmo(AmmoType.DROPPED_5, StackEventHandler.CheckSteamIDItemNum[player.SteamId].ammo5 + player.GetAmmo(AmmoType.DROPPED_5));
 			}
 			
 			foreach (Smod2.API.ItemType item in (Smod2.API.ItemType[])Enum.GetValues(typeof(Smod2.API.ItemType)))
 			{
-				if (StackEventHandler.CheckSteamIDItemNum[playa.SteamId].TempItemList.TryGetValue((int)item, out int value))
+				if (StackEventHandler.CheckSteamIDItemNum[player.SteamId].TempItemList.TryGetValue((int)item, out int value))
 				{
 					for (int i = 0; i < value; i++)
 					{
-						playa.GiveItem(item);
+						player.GiveItem(item);
 					}
 				}
 			}
-			StackEventHandler.CheckSteamIDItemNum[playa.SteamId].TempItemList.Clear();
+			StackEventHandler.CheckSteamIDItemNum[player.SteamId].TempItemList.Clear();
 		}
 	}
 }

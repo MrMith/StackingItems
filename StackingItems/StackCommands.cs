@@ -5,7 +5,7 @@ namespace StackingItems
 {
 	class StackVersion : ICommandHandler
 	{
-		private Plugin plugin;
+		private readonly Plugin plugin;
 
 		public StackVersion(Plugin plugin)
 		{
@@ -19,18 +19,18 @@ namespace StackingItems
 
 		public string GetUsage()
 		{
-			return "stack_version";
-		}
+            return $"{plugin.Details.configPrefix}_version";
+        }
 
 		public string[] OnCall(ICommandSender sender, string[] args)
 		{
-			return new string[] { "mith.stackingitems is version " + plugin.Details.version };
+			return new string[] { $"{plugin.Details.id} is version {plugin.Details.version}" };
 		}
 	}
 
 	class StackDisable : ICommandHandler
 	{
-		private Plugin plugin;
+		private readonly Plugin plugin;
 
 		public StackDisable(Plugin plugin)
 		{
@@ -39,12 +39,12 @@ namespace StackingItems
 
 		public string GetCommandDescription()
 		{
-			return "Enables or disables StackingItems.";
+			return $"Enables or disables {plugin.Details.id}.";
 		}
 
 		public string GetUsage()
 		{
-			return "stack_disable";
+			return $"{plugin.Details.configPrefix}_disable";
 		}
 
 		public string[] OnCall(ICommandSender sender, string[] args)
